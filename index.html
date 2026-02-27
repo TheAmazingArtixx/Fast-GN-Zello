@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRTC — Système Radio Tactique Connecté</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --navy:       #07122a;
+      --navy-mid:   #0d1f42;
+      --navy-light: #162d5c;
+      --gold:       #c8a84b;
+      --gold-dim:   #c8a84b22;
+      --gold-bright:#e8c96a;
+      --red-alert:  #d9342b;
+      --red-dim:    #d9342b28;
+      --green-ok:   #2ecc71;
+      --green-dim:  #2ecc7122;
+      --text:       #dce8f5;
+      --muted:      #5a7a9a;
+      --border:     #1e3560;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--navy);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 70% 40% at 50% 0%, #1a3a7022, transparent),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px),
+        linear-gradient(0deg, var(--border) 1px, transparent 1px);
+      background-size: 100%, 60px 60px, 60px 60px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .classif {
+      width: 100%;
+      background: var(--gold);
+      text-align: center;
+      padding: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: bold;
+      color: var(--navy);
+      letter-spacing: 0.35em;
+      position: relative;
+      z-index: 10;
+    }
+
+    .topbar {
+      width: 100%;
+      background: linear-gradient(90deg, #050e22, var(--navy-mid), #050e22);
+      border-bottom: 1px solid var(--gold);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo-block { display: flex; align-items: center; gap: 14px; }
+
+    .logo-emblem { width: 40px; height: 40px; }
+
+    .logo-text { display: flex; flex-direction: column; }
+
+    .logo-text .title {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--gold);
+      letter-spacing: 0.25em;
+      line-height: 1;
+    }
+
+    .logo-text .subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      margin-top: 2px;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 24px; }
+
+    .sys-info {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    .sys-info .live { color: var(--green-ok); }
+
+    #clock {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      min-width: 70px;
+      text-align: right;
+    }
+
+    .main {
+      width: 100%;
+      max-width: 860px;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-header .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+    .section-header .label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--gold);
+      letter-spacing: 0.28em;
+      white-space: nowrap;
+    }
+
+    .panel {
+      background: linear-gradient(135deg, #0a1830, #0d1f42);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.35s ease both;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .panel .corner { position: absolute; width: 10px; height: 10px; border-color: var(--gold); border-style: solid; opacity: 0.55; }
+    .panel .corner.tl { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
+    .panel .corner.tr { top: 5px; right: 5px; border-width: 1px 1px 0 0; }
+    .panel .corner.bl { bottom: 5px; left: 5px; border-width: 0 0 1px 1px; }
+    .panel .corner.br { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
+
+    .panel-body { padding: 22px 26px; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 11px 16px;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .tab:last-child { border-right: none; }
+    .tab.active { background: var(--gold-dim); color: var(--gold); }
+
+    .field-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      color: var(--muted);
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    input[type="text"] {
+      width: 100%;
+      background: #050e22;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.88rem;
+      outline: none;
+      letter-spacing: 0.12em;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"]:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-dim); }
+    input[type="text"]::placeholder { color: var(--muted); opacity: 0.45; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px 20px;
+      background: transparent;
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      color: var(--gold);
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      transition: all 0.18s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s;
+    }
+
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-primary:hover { color: var(--navy); }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    .error-box {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: var(--red-dim);
+      border: 1px solid var(--red-alert);
+      border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--red-alert);
+      letter-spacing: 0.1em;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      background: #050e22;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+    .status-strip.ok .status-dot { background: var(--green-ok); box-shadow: 0 0 5px var(--green-ok); }
+    .status-strip.ok { color: var(--text); }
+    .status-strip.tx .status-dot { background: var(--red-alert); box-shadow: 0 0 7px var(--red-alert); animation: blink 0.4s infinite; }
+    .status-strip.tx { color: var(--red-alert); }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .metric {
+      background: #050e22;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 11px 12px;
+      text-align: center;
+    }
+
+    .metric .m-val { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: var(--gold); }
+    .metric .m-lbl { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; color: var(--muted); letter-spacing: 0.15em; margin-top: 4px; }
+
+    /* OP section */
+    #op-section { display: none; }
+
+    .op-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .op-id-block {
+      background: #050e22;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 12px 14px;
+    }
+
+    .op-id-block .lbl { font-family: 'Share Tech Mono', monospace; font-size: 0.56rem; color: var(--muted); letter-spacing: 0.2em; }
+    .op-id-block .val { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--gold); letter-spacing: 0.18em; margin-top: 3px; }
+
+    .mode-badge {
+      padding: 8px 14px;
+      border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-align: center;
+    }
+
+    .mode-badge.commandant { background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); }
+    .mode-badge.agent { background: var(--green-dim); border: 1px solid var(--green-ok); color: var(--green-ok); }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 3px 9px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      transition: all 0.2s;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* PTT */
+    .ptt-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      padding: 28px 0;
+    }
+
+    #ptt-btn {
+      width: 175px;
+      height: 175px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      background: radial-gradient(circle at 40% 35%, #162d5c, #07122a);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.12s;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: 0 0 0 8px #c8a84b0a, 0 0 0 16px #c8a84b05, inset 0 1px 0 #ffffff10;
+    }
+
+    #ptt-btn::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      animation: rotate 25s linear infinite;
+    }
+
+    #ptt-btn::after {
+      content: '';
+      position: absolute;
+      inset: -22px;
+      border-radius: 50%;
+      border: 1px dashed #1e356055;
+      animation: rotate 40s linear infinite reverse;
+    }
+
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    #ptt-btn .ptt-icon { font-size: 2.2rem; transition: all 0.12s; }
+    #ptt-btn .ptt-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    #ptt-btn.tx {
+      border-color: var(--red-alert);
+      background: radial-gradient(circle at 40% 35%, #3a0e0e, #1a0505);
+      box-shadow: 0 0 0 8px #d9342b12, 0 0 30px #d9342b35, 0 0 70px #d9342b12, inset 0 1px 0 #ffffff08;
+      transform: scale(0.97);
+    }
+
+    #ptt-btn.tx .ptt-text { color: var(--red-alert); }
+
+    .ptt-hint {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-align: center;
+      line-height: 1.9;
+    }
+
+    /* Listener */
+    .agent-reception {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 0;
+    }
+
+    .signal-indicator {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: #050e22;
+      min-width: 260px;
+      justify-content: center;
+    }
+
+    .signal-bars { display: flex; align-items: flex-end; gap: 4px; height: 22px; }
+    .signal-bars .bar { width: 5px; border-radius: 1px; background: var(--border); transition: background 0.3s; }
+    .signal-bars .bar:nth-child(1) { height: 5px; }
+    .signal-bars .bar:nth-child(2) { height: 9px; }
+    .signal-bars .bar:nth-child(3) { height: 13px; }
+    .signal-bars .bar:nth-child(4) { height: 18px; }
+    .signal-bars .bar:nth-child(5) { height: 22px; }
+
+    .signal-indicator.receiving .signal-bars .bar {
+      background: var(--green-ok);
+    }
+
+    .signal-indicator.receiving .signal-bars .bar:nth-child(1) { animation: wave 0.8s 0s ease-in-out infinite alternate; }
+    .signal-indicator.receiving .signal-bars .bar:nth-child(2) { animation: wave 0.8s 0.1s ease-in-out infinite alternate; }
+    .signal-indicator.receiving .signal-bars .bar:nth-child(3) { animation: wave 0.8s 0.2s ease-in-out infinite alternate; }
+    .signal-indicator.receiving .signal-bars .bar:nth-child(4) { animation: wave 0.8s 0.3s ease-in-out infinite alternate; }
+    .signal-indicator.receiving .signal-bars .bar:nth-child(5) { animation: wave 0.8s 0.4s ease-in-out infinite alternate; }
+
+    @keyframes wave { from { opacity: 0.25; } to { opacity: 1; } }
+
+    .signal-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .signal-indicator.receiving .signal-text { color: var(--green-ok); }
+
+    footer {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding: 10px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      margin-top: auto;
+    }
+
+    footer span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.56rem;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+    }
+
+    .enc-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.56rem;
+      color: var(--green-ok);
+      letter-spacing: 0.14em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="classif">USAGE INTERNE — RÉSEAU TACTIQUE SÉCURISÉ — NE PAS DIFFUSER</div>
+
+<header class="topbar">
+  <div class="logo-block">
+    <svg class="logo-emblem" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="#0d1f42" stroke="#c8a84b" stroke-width="1.5"/>
+      <polygon points="20,7 33,14 33,26 20,33 7,26 7,14" fill="none" stroke="#c8a84b" stroke-width="0.7" opacity="0.45"/>
+      <text x="20" y="24" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#c8a84b">GN</text>
+    </svg>
+    <div class="logo-text">
+      <span class="title">S.R.T.C.</span>
+      <span class="subtitle">SYSTÈME RADIO TACTIQUE CONNECTÉ · v3.1.4</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="sys-info">
+      <div>PROTOCOLE : WebRTC/TLS · AES-256</div>
+      <div>ÉTAT RÉSEAU : <span class="live">OPÉRATIONNEL</span></div>
+    </div>
+    <div id="clock">--:--:--</div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- SETUP -->
+  <div id="setup-section">
+    <div class="section-header">
+      <span class="label">◈ INITIALISATION DE SESSION</span>
+      <div class="line"></div>
+    </div>
+
+    <div class="panel">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-body">
+        <div class="tab-row">
+          <button class="tab active" onclick="setTab('host')">📡 &nbsp;COMMANDANT DE RÉSEAU</button>
+          <button class="tab" onclick="setTab('join')">📻 &nbsp;AGENT RÉCEPTEUR</button>
+        </div>
+
+        <div id="host-panel">
+          <div class="field-label">IDENTIFIANT DE CANAL</div>
+          <input id="host-room-input" type="text" placeholder="ex : ALPHA-7 / BRAVO-2 / OPS-NORD" maxlength="24" />
+          <button class="btn-primary" onclick="startHost()"><span>▶ &nbsp;OUVRIR LE CANAL SÉCURISÉ</span></button>
+        </div>
+
+        <div id="join-panel" style="display:none">
+          <div class="field-label">CODE D'ACCÈS CANAL</div>
+          <input id="join-room-input" type="text" placeholder="code transmis par le commandant" maxlength="24" />
+          <button class="btn-primary" onclick="startJoin()"><span>▶ &nbsp;REJOINDRE LE CANAL</span></button>
+        </div>
+
+        <div class="error-box" id="error-msg"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-body">
+        <div class="section-header" style="margin-bottom:14px">
+          <span class="label">◈ DIAGNOSTICS SYSTÈME</span>
+          <div class="line"></div>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="m-val">P2P</div>
+            <div class="m-lbl">PROTOCOLE</div>
+          </div>
+          <div class="metric">
+            <div class="m-val" style="color:var(--green-ok)">AES</div>
+            <div class="m-lbl">CHIFFREMENT</div>
+          </div>
+          <div class="metric">
+            <div class="m-val">OPUS</div>
+            <div class="m-lbl">CODEC AUDIO</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPERATIONAL -->
+  <div id="op-section">
+    <div class="section-header">
+      <span class="label">◈ CANAL OPÉRATIONNEL ACTIF</span>
+      <div class="line"></div>
+    </div>
+
+    <div class="panel">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-body">
+        <div class="op-grid">
+          <div class="op-id-block">
+            <div class="lbl">IDENTIFIANT CANAL</div>
+            <div class="val" id="room-display">—</div>
+            <button class="copy-btn" onclick="copyRoom()">⧉ COPIER LE CODE</button>
+          </div>
+          <div class="mode-badge commandant" id="mode-badge">—</div>
+          <div class="op-id-block" style="text-align:right">
+            <div class="lbl">AGENTS CONNECTÉS</div>
+            <div class="val" id="peer-count">0</div>
+            <div class="lbl" style="margin-top:2px">UNITÉ(S) EN LIGNE</div>
+          </div>
+        </div>
+        <div class="status-strip" id="status-bar">
+          <div class="status-dot"></div>
+          <span id="status-text">INITIALISATION...</span>
+          <div style="flex:1"></div>
+          <span style="opacity:0.35" id="session-id"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOST PTT -->
+    <div class="panel" id="host-ptt" style="display:none">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-body">
+        <div class="section-header" style="margin-bottom:0">
+          <span class="label">◈ CONTRÔLE DE TRANSMISSION</span>
+          <div class="line"></div>
+        </div>
+        <div class="ptt-container">
+          <button id="ptt-btn"
+            onmousedown="startTalking()" onmouseup="stopTalking()"
+            ontouchstart="startTalking(event)" ontouchend="stopTalking(event)">
+            <div class="ptt-icon">🎙️</div>
+            <div class="ptt-text" id="ptt-text">APPUYEZ<br>POUR ÉMETTRE</div>
+          </button>
+          <div class="ptt-hint">
+            MAINTENIR POUR TRANSMETTRE · RELÂCHER POUR COUPER<br>
+            <span style="color:var(--gold);opacity:0.65">RACCOURCI CLAVIER : [ESPACE]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTENER -->
+    <div class="panel" id="listener-panel" style="display:none">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-body">
+        <div class="section-header" style="margin-bottom:0">
+          <span class="label">◈ MODULE DE RÉCEPTION</span>
+          <div class="line"></div>
+        </div>
+        <div class="agent-reception">
+          <div class="signal-indicator" id="signal-indicator">
+            <div class="signal-bars">
+              <div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+            <div class="signal-text" id="signal-text">EN ATTENTE DE TRANSMISSION...</div>
+          </div>
+          <div class="ptt-hint">
+            MODE RÉCEPTION PASSIVE · AUCUNE ACTION REQUISE<br>
+            <span style="color:var(--gold);opacity:0.65">L'AUDIO EST DIFFUSÉ AUTOMATIQUEMENT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>GENDARMERIE NATIONALE · DIRECTION GÉNÉRALE · SYSTÈME INTERNE</span>
+  <div class="enc-badge">🔒 CANAL CHIFFRÉ · P2P WEBRTC</div>
+  <span>RÉF : SRTC-2024-FR-8812</span>
+</footer>
+
+<audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  let peer = null, mode = 'host', roomId = '';
+  let connections = [], activeCalls = [], hostMediaStream = null;
+  const sessionId = 'SID-' + Math.random().toString(36).substr(2,8).toUpperCase();
+
+  function setTab(t) {
+    mode = t;
+    document.querySelectorAll('.tab').forEach((el,i) =>
+      el.classList.toggle('active', (i===0&&t==='host')||(i===1&&t==='join')));
+    document.getElementById('host-panel').style.display = t==='host'?'block':'none';
+    document.getElementById('join-panel').style.display = t==='join'?'block':'none';
+  }
+
+  async function startHost() {
+    let raw = document.getElementById('host-room-input').value.trim().replace(/\s+/g,'-')||'';
+    roomId = raw ? 'srtc-'+raw : 'srtc-'+Math.random().toString(36).substr(2,6).toUpperCase();
+    try {
+      hostMediaStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+      hostMediaStream.getAudioTracks().forEach(t=>t.enabled=false);
+    } catch(e) { showError('ACCÈS MICROPHONE REFUSÉ : '+e.message.toUpperCase()); return; }
+
+    peer = new Peer(roomId, {debug:0});
+    peer.on('open', ()=>switchToOps('host'));
+    peer.on('connection', conn=>{
+      connections.push(conn);
+      updatePeerCount();
+      conn.on('close',()=>{connections=connections.filter(c=>c!==conn);updatePeerCount();});
+    });
+    peer.on('call', call=>{
+      call.answer(hostMediaStream);
+      activeCalls.push(call);
+      call.on('close',()=>{activeCalls=activeCalls.filter(c=>c!==call);});
+    });
+    peer.on('error', e=>showError('ERREUR RÉSEAU : '+e.message.toUpperCase()));
+  }
+
+  function startJoin() {
+    const code = document.getElementById('join-room-input').value.trim();
+    if (!code) { showError("CODE D'ACCÈS REQUIS"); return; }
+    roomId = code.startsWith('srtc-') ? code : 'srtc-'+code;
+    peer = new Peer(undefined, {debug:0});
+    peer.on('open', ()=>{
+      const call = peer.call(roomId, getDummyStream());
+      call.on('stream', remoteStream=>{
+        const a=document.getElementById('remote-audio');
+        a.srcObject=remoteStream; a.play().catch(()=>{});
+        switchToOps('listener');
+        setReceiving(true);
+      });
+      call.on('close',()=>setReceiving(false));
+      call.on('error',()=>showError('CANAL INTROUVABLE — VÉRIFIEZ LE CODE'));
+      setTimeout(()=>{ if(document.getElementById('setup-section').style.display!=='none') showError('DÉLAI DÉPASSÉ — CANAL INTROUVABLE'); },9000);
+    });
+    peer.on('error', e=>{
+      if(e.type==='peer-unavailable') showError('CANAL SÉCURISÉ INTROUVABLE — CODE INVALIDE');
+      else showError('ERREUR : '+e.message.toUpperCase());
+    });
+  }
+
+  function getDummyStream() {
+    return new AudioContext().createMediaStreamDestination().stream;
+  }
+
+  function startTalking(e) {
+    if(e) e.preventDefault();
+    if(!hostMediaStream) return;
+    hostMediaStream.getAudioTracks().forEach(t=>t.enabled=true);
+    document.getElementById('ptt-btn').classList.add('tx');
+    document.getElementById('ptt-text').innerHTML='TRANSMISSION<br>EN COURS';
+    setStatus('tx','ÉMISSION EN COURS — CANAL ACTIF');
+  }
+
+  function stopTalking(e) {
+    if(e) e.preventDefault();
+    if(!hostMediaStream) return;
+    hostMediaStream.getAudioTracks().forEach(t=>t.enabled=false);
+    document.getElementById('ptt-btn').classList.remove('tx');
+    document.getElementById('ptt-text').innerHTML='APPUYEZ<br>POUR ÉMETTRE';
+    setStatus('ok','CANAL ACTIF — EN ATTENTE DE TRANSMISSION');
+  }
+
+  function switchToOps(m) {
+    document.getElementById('setup-section').style.display='none';
+    document.getElementById('op-section').style.display='block';
+    document.getElementById('room-display').textContent=roomId.replace('srtc-','').toUpperCase();
+    document.getElementById('session-id').textContent=sessionId;
+    if(m==='host') {
+      document.getElementById('mode-badge').textContent='COMMANDANT';
+      document.getElementById('mode-badge').className='mode-badge commandant';
+      document.getElementById('host-ptt').style.display='block';
+      setStatus('ok',"CANAL OUVERT — EN ATTENTE D'AGENTS");
+    } else {
+      document.getElementById('mode-badge').textContent='AGENT RÉCEPTEUR';
+      document.getElementById('mode-badge').className='mode-badge agent';
+      document.getElementById('listener-panel').style.display='block';
+      setStatus('ok','CONNECTÉ AU CANAL — RÉCEPTION ACTIVE');
+    }
+  }
+
+  function setReceiving(active) {
+    document.getElementById('signal-indicator').classList.toggle('receiving',active);
+    document.getElementById('signal-text').textContent=active?'SIGNAL REÇU — TRANSMISSION EN COURS':'EN ATTENTE DE TRANSMISSION...';
+  }
+
+  function updatePeerCount() { document.getElementById('peer-count').textContent=connections.length; }
+
+  function setStatus(cls,text) {
+    document.getElementById('status-bar').className='status-strip '+cls;
+    document.getElementById('status-text').textContent=text;
+  }
+
+  function showError(msg) {
+    const el=document.getElementById('error-msg');
+    el.textContent='⚠ '+msg; el.style.display='block';
+  }
+
+  function copyRoom() {
+    const code=roomId.replace('srtc-','');
+    navigator.clipboard.writeText(code).then(()=>{
+      const b=document.querySelector('.copy-btn');
+      b.textContent='✓ CODE COPIÉ';
+      setTimeout(()=>b.textContent='⧉ COPIER LE CODE',2000);
+    });
+  }
+
+  document.addEventListener('keydown', e=>{
+    if(e.code==='Space' && document.getElementById('host-ptt').style.display!=='none') {
+      e.preventDefault();
+      if(!e.repeat) startTalking();
+    }
+  });
+  document.addEventListener('keyup', e=>{
+    if(e.code==='Space' && document.getElementById('host-ptt').style.display!=='none') stopTalking();
+  });
+</script>
+</body>
+</html>
