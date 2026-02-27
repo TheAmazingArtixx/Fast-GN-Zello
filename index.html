@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Radio Tactique</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -18,8 +18,7 @@ body {
 .app { width: 100%; max-width: 360px; }
 .hdr {
   background: #112240; border-bottom: 2px solid #2a6fff;
-  padding: 14px 16px; margin-bottom: 20px;
-  border-radius: 6px;
+  padding: 14px 16px; margin-bottom: 20px; border-radius: 6px;
 }
 .hdr h1 { font-size: 1rem; color: #6ab0ff; font-weight: 700; }
 .hdr p  { font-size: 0.62rem; color: #3a6090; margin-top: 2px; }
@@ -29,7 +28,7 @@ body {
 }
 .card-title {
   font-size: 0.68rem; color: #3a6090; text-transform: uppercase;
-  letter-spacing: 0.12em; margin-bottom: 12px;
+  letter-spacing: 0.1em; margin-bottom: 12px;
   padding-bottom: 8px; border-bottom: 1px solid #1a3060;
 }
 label { display: block; font-size: 0.72rem; color: #7aabdd; margin-bottom: 5px; }
@@ -53,7 +52,7 @@ input::placeholder { color: #2a4060; }
 .err-box {
   background: #1a0d0d; border: 1px solid #c04040; color: #ff8080;
   padding: 10px 12px; border-radius: 4px; font-size: 0.73rem;
-  margin-top: 10px; display: none; line-height: 1.5;
+  margin-top: 10px; display: none; line-height: 1.6;
 }
 #screen-loading { display:none; text-align:center; padding: 50px 0; }
 .spinner {
@@ -63,18 +62,14 @@ input::placeholder { color: #2a4060; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin-txt { font-size: 0.8rem; color: #6ab0ff; margin-bottom: 6px; }
-.spin-sub { font-size: 0.65rem; color: #3a6090; }
+.spin-sub { font-size: 0.62rem; color: #3a6090; margin-top: 4px; }
 .cancel-lnk {
-  display: inline-block; margin-top: 18px;
+  display: inline-block; margin-top: 20px;
   font-size: 0.7rem; color: #2a5080; cursor: pointer; text-decoration: underline;
 }
-.cancel-lnk:hover { color: #c06060; }
 #screen-ptt { display:none; }
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.info-cell {
-  background: #0a1525; border: 1px solid #1a3060;
-  border-radius: 4px; padding: 10px;
-}
+.info-cell { background: #0a1525; border: 1px solid #1a3060; border-radius: 4px; padding: 10px; }
 .info-cell .lbl { font-size: 0.58rem; color: #3a6090; text-transform: uppercase; }
 .info-cell .val { font-size: 0.88rem; color: #6ab0ff; margin-top: 3px; font-weight: bold; }
 .share-row {
@@ -90,36 +85,17 @@ input::placeholder { color: #2a4060; }
   cursor: pointer; font-family: Arial, sans-serif; white-space: nowrap;
 }
 .sbtn:hover { background: #204070; }
-.users-box {
-  background: #0a1525; border: 1px solid #1a3060;
-  border-radius: 4px; margin-bottom: 12px; overflow: hidden;
-}
-.users-hdr {
-  font-size: 0.62rem; color: #3a6090; text-transform: uppercase;
-  padding: 7px 12px; border-bottom: 1px solid #0d1b2e;
-}
-.u-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 7px 12px; font-size: 0.78rem; border-bottom: 1px solid #0d1b2e;
-}
+.users-box { background: #0a1525; border: 1px solid #1a3060; border-radius: 4px; margin-bottom: 12px; }
+.users-hdr { font-size: 0.62rem; color: #3a6090; text-transform: uppercase; padding: 7px 12px; border-bottom: 1px solid #0d1b2e; }
+.u-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; font-size: 0.78rem; border-bottom: 1px solid #0d1b2e; }
 .u-row:last-child { border-bottom: none; }
 .u-name { color: #aaccee; }
 .u-name.me { color: #6ab0ff; }
-.u-badge {
-  font-size: 0.6rem; padding: 2px 7px; border-radius: 3px;
-  border: 1px solid #1e4080; color: #3a6090;
-}
+.u-badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 3px; border: 1px solid #1e4080; color: #3a6090; }
 .u-badge.sp { border-color: #2a9fff; color: #2a9fff; animation: bl .6s infinite; }
 @keyframes bl { 0%,100%{opacity:1} 50%{opacity:.2} }
-.ptt-area {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 12px; padding: 16px;
-}
-.rx-bar {
-  width: 100%; padding: 8px 12px; border-radius: 4px;
-  background: #0a1525; border: 1px solid #1a3060;
-  font-size: 0.7rem; color: #3a6090; text-align: center;
-}
+.ptt-area { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+.rx-bar { width: 100%; padding: 8px 12px; border-radius: 4px; background: #0a1525; border: 1px solid #1a3060; font-size: 0.7rem; color: #3a6090; text-align: center; }
 .rx-bar.rx { color: #2a9fff; border-color: #2a6fff; }
 .rx-bar.tx { color: #ff6060; border-color: #c04040; }
 #ptt-btn {
@@ -146,23 +122,23 @@ input::placeholder { color: #2a4060; }
 <div class="app">
 
   <div class="hdr">
-    <h1>📡 Radio Tactique</h1>
+    <h1>&#128225; Radio Tactique</h1>
     <p>GENDARMERIE NATIONALE</p>
   </div>
 
   <!-- SETUP -->
   <div id="screen-setup">
     <div class="card">
-      <div class="card-title">Créer un canal</div>
+      <div class="card-title">Creer un canal</div>
       <label>Nom du canal</label>
-      <input id="in-name" type="text" placeholder="ex : ALPHA-7"/>
-      <button class="btn" id="btn-create" onclick="doCreate()">Créer</button>
+      <input id="in-name" type="text" placeholder="ex : ALPHA7"/>
+      <button class="btn" id="btn-create" onclick="doCreate()">Creer</button>
     </div>
-    <div class="sep">— ou —</div>
+    <div class="sep">ou</div>
     <div class="card">
       <div class="card-title">Rejoindre un canal</div>
       <label>Code du canal</label>
-      <input id="in-code" type="text" placeholder="code fourni par le créateur"/>
+      <input id="in-code" type="text" placeholder="code fourni par le createur"/>
       <label>Votre indicatif</label>
       <input id="in-cs" type="text" placeholder="ex : ADJ MARTIN"/>
       <button class="btn" id="btn-join" onclick="doJoin()">Rejoindre</button>
@@ -192,7 +168,7 @@ input::placeholder { color: #2a4060; }
       <button class="sbtn" id="sbtn" onclick="copyCode()">Copier</button>
     </div>
     <div class="users-box">
-      <div class="users-hdr">Unites connectees (<span id="d-units">0</span>)</div>
+      <div class="users-hdr">Unites (<span id="d-units">0</span>)</div>
       <div id="ulist"></div>
     </div>
     <div class="card" style="padding:0">
@@ -215,20 +191,8 @@ input::placeholder { color: #2a4060; }
 <script>
 var $ = function(id) { return document.getElementById(id); };
 
-var PEER_CONFIG = {
-  host: '0.peerjs.com',
-  port: 443,
-  path: '/',
-  secure: true,
-  debug: 0,
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
-    ]
-  }
-};
-
+// Pas de config custom — on laisse PeerJS utiliser son propre serveur par defaut
+// C'est le plus fiable
 var peer = null;
 var myId = '', myCallsign = '', roomId = '', isHost = false;
 var micStream = null;
@@ -263,36 +227,29 @@ function setBtns(on) {
 function doCancel() {
   if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
   if (peer) { try { peer.destroy(); } catch(e){} peer = null; }
-  if (micStream) { micStream.getTracks().forEach(function(t){t.stop();}); micStream = null; }
+  if (micStream) { micStream.getTracks().forEach(function(t){ t.stop(); }); micStream = null; }
   Object.keys(peers).forEach(function(k){ delete peers[k]; });
   setBtns(true);
   show('setup');
 }
 
 function addAudio(pid, stream) {
-  var existing = $('a-'+pid);
-  if (existing) existing.remove();
+  var ex = $('a-'+pid);
+  if (ex) ex.remove();
   var a = document.createElement('audio');
-  a.id = 'a-'+pid;
-  a.autoplay = true;
-  a.srcObject = stream;
+  a.id = 'a-'+pid; a.autoplay = true; a.srcObject = stream;
   $('audios').appendChild(a);
   a.play().catch(function(){});
 }
-
-function removeAudio(pid) {
-  var e = $('a-'+pid);
-  if (e) e.remove();
-}
+function removeAudio(pid) { var e = $('a-'+pid); if (e) e.remove(); }
 
 function getMic(cb, errcb) {
   navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-    .then(function(stream) {
-      micStream = stream;
+    .then(function(s) {
+      micStream = s;
       micStream.getAudioTracks().forEach(function(t){ t.enabled = false; });
       cb();
-    })
-    .catch(function(e) { errcb(e); });
+    }).catch(errcb);
 }
 
 function render() {
@@ -300,51 +257,43 @@ function render() {
   ul.innerHTML = '';
   var me = document.createElement('div');
   me.className = 'u-row';
-  me.innerHTML = '<span class="u-name me">' + esc(myCallsign) + ' <span style="font-size:.6rem;color:#2a5080">(moi)</span></span><span class="u-badge" style="color:#2a6fff;border-color:#1e4080">EN LIGNE</span>';
+  me.innerHTML = '<span class="u-name me">' + esc(myCallsign) + ' (moi)</span><span class="u-badge" style="color:#2a6fff">EN LIGNE</span>';
   ul.appendChild(me);
-
   Object.keys(peers).forEach(function(id) {
     var p = peers[id];
     var d = document.createElement('div');
-    d.className = 'u-row';
-    d.id = 'r-' + id;
-    var badge = p.speaking
-      ? '<span class="u-badge sp">PARLE</span>'
-      : '<span class="u-badge">EN LIGNE</span>';
-    d.innerHTML = '<span class="u-name">' + esc(p.callsign) + '</span>' + badge;
+    d.className = 'u-row'; d.id = 'r-'+id;
+    d.innerHTML = '<span class="u-name">' + esc(p.callsign) + '</span><span class="u-badge' + (p.speaking?' sp':'') + '">' + (p.speaking ? 'PARLE' : 'EN LIGNE') + '</span>';
     ul.appendChild(d);
   });
-
   $('d-units').textContent = Object.keys(peers).length;
   updateRx();
 }
 
 function updateRx() {
-  var sp = Object.values(peers).filter(function(p){ return p.speaking; });
+  var sp = Object.keys(peers).filter(function(id){ return peers[id].speaking; });
   var rx = $('rxbar');
   if (sp.length) {
     rx.className = 'rx-bar rx';
-    rx.textContent = 'Reception : ' + sp.map(function(p){ return p.callsign; }).join(', ');
+    rx.textContent = 'Reception : ' + sp.map(function(id){ return peers[id].callsign; }).join(', ');
   } else {
     rx.className = 'rx-bar';
     rx.textContent = 'En veille';
   }
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
 function copyCode() {
-  var code = roomId.replace('rt-','');
-  navigator.clipboard.writeText(code).then(function() {
-    $('sbtn').textContent = 'Copie !';
+  navigator.clipboard.writeText(roomId).then(function() {
+    $('sbtn').textContent = 'Copie!';
     setTimeout(function(){ $('sbtn').textContent = 'Copier'; }, 2000);
   });
 }
 
 function broadcast(msg) {
-  Object.values(peers).forEach(function(p) {
+  Object.keys(peers).forEach(function(id) {
+    var p = peers[id];
     if (p.conn && p.conn.open) { try { p.conn.send(msg); } catch(e){} }
   });
 }
@@ -363,27 +312,21 @@ function onData(fromId, msg) {
 function connectOut(pid, knownCs) {
   if (peers[pid]) return;
   peers[pid] = { conn: null, call: null, callsign: knownCs || '???', speaking: false };
-
   var conn = peer.connect(pid, { reliable: true, serialization: 'json' });
   peers[pid].conn = conn;
-
   conn.on('open', function() {
     conn.send({ type: 'hello', cs: myCallsign });
-    var list = Object.keys(peers)
-      .filter(function(id){ return id !== pid; })
-      .map(function(id){ return { id: id, cs: peers[id].callsign }; });
+    var list = Object.keys(peers).filter(function(id){ return id !== pid; }).map(function(id){ return { id: id, cs: peers[id].callsign }; });
     if (list.length) conn.send({ type: 'peers', list: list });
   });
   conn.on('data', function(msg){ onData(pid, msg); });
   conn.on('close', function(){ delete peers[pid]; removeAudio(pid); render(); });
   conn.on('error', function(){ delete peers[pid]; removeAudio(pid); render(); });
-
   var call = peer.call(pid, micStream);
   peers[pid].call = call;
   call.on('stream', function(s){ addAudio(pid, s); });
   call.on('close', function(){ removeAudio(pid); });
   call.on('error', function(){ removeAudio(pid); });
-
   render();
 }
 
@@ -392,13 +335,10 @@ function setupIncoming() {
     var pid = conn.peer;
     if (!peers[pid]) peers[pid] = { conn: conn, call: null, callsign: '???', speaking: false };
     else peers[pid].conn = conn;
-
     conn.on('open', function() {
       conn.send({ type: 'hello', cs: myCallsign });
       if (isHost) {
-        var list = Object.keys(peers)
-          .filter(function(id){ return id !== pid; })
-          .map(function(id){ return { id: id, cs: peers[id].callsign }; });
+        var list = Object.keys(peers).filter(function(id){ return id !== pid; }).map(function(id){ return { id: id, cs: peers[id].callsign }; });
         if (list.length) conn.send({ type: 'peers', list: list });
         broadcast({ type: 'peers', list: [{ id: pid, cs: peers[pid].callsign }] });
       }
@@ -408,7 +348,6 @@ function setupIncoming() {
     conn.on('error', function(){ delete peers[pid]; removeAudio(pid); render(); });
     render();
   });
-
   peer.on('call', function(call) {
     var pid = call.peer;
     if (!peers[pid]) peers[pid] = { conn: null, call: call, callsign: '???', speaking: false };
@@ -422,32 +361,31 @@ function setupIncoming() {
 
 function goToPTT() {
   if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
-  $('d-canal').textContent = roomId.replace('rt-','').toUpperCase();
+  $('d-canal').textContent = roomId.toUpperCase();
   $('d-cs').textContent = myCallsign;
-  $('d-code').textContent = roomId.replace('rt-','').toUpperCase();
+  $('d-code').textContent = roomId.toUpperCase();
   show('ptt');
   render();
 }
 
+// ── CREER ─────────────────────────────────────────────────────
 function doCreate() {
   clearErr(); setBtns(false);
-  var raw = $('in-name').value.trim().replace(/\s+/g,'-') ||
-            Math.random().toString(36).substr(2,5).toUpperCase();
-  roomId = 'rt-' + raw.toUpperCase();
+  var raw = ($('in-name').value.trim() || Math.random().toString(36).substr(2,5)).toUpperCase().replace(/\s+/g,'');
+  roomId = raw;
   myCallsign = 'COMMANDANT';
   isHost = true;
 
-  setLoading('Acces microphone...', '');
-
+  setLoading('Acces microphone...');
   getMic(function() {
-    setLoading('Creation du canal...', roomId.replace('rt-',''));
-
-    peer = new Peer(roomId, PEER_CONFIG);
+    setLoading('Creation du canal...', roomId);
+    // PeerJS sans aucune config = serveur par defaut (peerjs.com)
+    peer = new Peer(roomId);
 
     cancelTimer = setTimeout(function() {
       doCancel();
-      showErr('Impossible de joindre le serveur. Verifiez votre connexion internet.');
-    }, 15000);
+      showErr('Le serveur ne repond pas. Reessayez dans quelques secondes.');
+    }, 20000);
 
     peer.on('open', function(id) {
       myId = id;
@@ -457,52 +395,75 @@ function doCreate() {
 
     peer.on('error', function(e) {
       if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
-      show('setup'); setBtns(true);
-      if (e.type === 'unavailable-id') showErr('Ce nom de canal est deja utilise. Essayez un autre.');
-      else showErr('Erreur : ' + e.type + '. Verifiez votre connexion.');
+      // unavailable-id = nom pris, on en genere un nouveau auto
+      if (e.type === 'unavailable-id') {
+        try { peer.destroy(); } catch(ex){}
+        roomId = raw + Math.random().toString(36).substr(2,3).toUpperCase();
+        peer = new Peer(roomId);
+        cancelTimer = setTimeout(function() { doCancel(); showErr('Impossible de creer le canal. Reessayez.'); }, 15000);
+        peer.on('open', function(id) { myId = id; setupIncoming(); goToPTT(); });
+        peer.on('error', function(e2) {
+          if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
+          show('setup'); setBtns(true);
+          showErr('Erreur : ' + e2.type);
+        });
+      } else {
+        show('setup'); setBtns(true);
+        showErr('Erreur : ' + e.type + '. Reessayez.');
+      }
     });
-
-  }, function(e) {
+  }, function() {
     show('setup'); setBtns(true);
-    showErr('Microphone refuse. Autorisez-le dans votre navigateur.');
+    showErr('Microphone refuse. Autorisez-le dans les parametres de votre navigateur.');
   });
 }
 
+// ── REJOINDRE ─────────────────────────────────────────────────
 function doJoin() {
   clearErr(); setBtns(false);
-  var code = $('in-code').value.trim().toUpperCase().replace(/^RT-/,'');
+  var code = $('in-code').value.trim().toUpperCase().replace(/\s+/g,'');
   var cs = $('in-cs').value.trim();
   if (!code) { setBtns(true); showErr('Entrez un code de canal.'); return; }
 
-  roomId = 'rt-' + code;
+  roomId = code;
   myCallsign = cs || 'AGENT-' + Math.random().toString(36).substr(2,4).toUpperCase();
   isHost = false;
 
-  setLoading('Acces microphone...', '');
-
+  setLoading('Acces microphone...');
   getMic(function() {
-    setLoading('Connexion au canal...', code);
+    setLoading('Connexion au canal...', roomId);
 
-    peer = new Peer(undefined, PEER_CONFIG);
+    // PeerJS sans config = serveur par defaut
+    peer = new Peer();
 
     cancelTimer = setTimeout(function() {
       doCancel();
-      showErr('Connexion impossible. Verifiez votre connexion internet et le code du canal.');
-    }, 15000);
+      showErr('Impossible de joindre le serveur PeerJS. Reessayez.');
+    }, 20000);
 
     peer.on('open', function(id) {
       myId = id;
       setupIncoming();
 
+      // On se connecte a l'hote
       peers[roomId] = { conn: null, call: null, callsign: 'COMMANDANT', speaking: false };
-
       var conn = peer.connect(roomId, { reliable: true, serialization: 'json' });
       peers[roomId].conn = conn;
 
       var opened = false;
 
+      // Timeout specifique pour la connexion au canal (si le canal n'existe pas)
+      var connTimer = setTimeout(function() {
+        if (!opened) {
+          if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
+          doCancel();
+          showErr('Canal "' + roomId + '" introuvable. Verifiez que le createur a bien le canal ouvert.');
+        }
+      }, 10000);
+
       conn.on('open', function() {
         opened = true;
+        clearTimeout(connTimer);
         if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
         conn.send({ type: 'hello', cs: myCallsign });
 
@@ -518,10 +479,11 @@ function doJoin() {
       conn.on('data', function(msg){ onData(roomId, msg); });
       conn.on('close', function(){ delete peers[roomId]; removeAudio(roomId); render(); });
       conn.on('error', function() {
+        clearTimeout(connTimer);
         if (!opened) {
           if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
           show('setup'); setBtns(true);
-          showErr('Canal introuvable. Verifiez le code. Le createur doit avoir le canal ouvert.');
+          showErr('Canal "' + roomId + '" introuvable. Le createur doit avoir la page ouverte.');
         }
       });
     });
@@ -529,18 +491,20 @@ function doJoin() {
     peer.on('error', function(e) {
       if (cancelTimer) { clearTimeout(cancelTimer); cancelTimer = null; }
       show('setup'); setBtns(true);
-      if (e.type === 'peer-unavailable')
-        showErr('Canal introuvable. Verifiez le code. Le createur doit avoir le canal ouvert.');
-      else
-        showErr('Erreur reseau : ' + e.type + '. Verifiez votre connexion.');
+      if (e.type === 'peer-unavailable') {
+        showErr('Canal "' + roomId + '" introuvable. Le createur doit avoir la page ouverte.');
+      } else {
+        showErr('Erreur reseau : ' + e.type + '. Reessayez.');
+      }
     });
 
-  }, function(e) {
+  }, function() {
     show('setup'); setBtns(true);
-    showErr('Microphone refuse. Autorisez-le dans votre navigateur.');
+    showErr('Microphone refuse. Autorisez-le dans les parametres de votre navigateur.');
   });
 }
 
+// ── PTT ───────────────────────────────────────────────────────
 function startTx(e) {
   if (e) e.preventDefault();
   if (!micStream) return;
@@ -564,8 +528,7 @@ function stopTx(e) {
 
 document.addEventListener('keydown', function(e) {
   if (e.code === 'Space' && $('screen-ptt').style.display !== 'none') {
-    e.preventDefault();
-    if (!e.repeat) startTx();
+    e.preventDefault(); if (!e.repeat) startTx();
   }
 });
 document.addEventListener('keyup', function(e) {
