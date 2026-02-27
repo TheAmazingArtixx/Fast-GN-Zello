@@ -21,12 +21,8 @@
       padding: 20px;
     }
 
-    .app {
-      width: 100%;
-      max-width: 400px;
-    }
+    .app { width: 100%; max-width: 380px; }
 
-    /* Header */
     .header {
       text-align: center;
       border: 2px solid #4a6741;
@@ -35,239 +31,181 @@
       background: #0f1a0f;
     }
 
-    .header h1 {
-      font-size: 1rem;
-      letter-spacing: 0.3em;
-      color: #7aaf6a;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
+    .header h1 { font-size: 0.95rem; letter-spacing: 0.3em; color: #7aaf6a; font-weight: 700; }
+    .header p  { font-size: 0.6rem; color: #4a6741; letter-spacing: 0.2em; margin-top: 3px; }
 
-    .header p {
-      font-size: 0.65rem;
-      color: #4a6741;
-      letter-spacing: 0.2em;
-      margin-top: 4px;
-    }
-
-    /* Screens */
-    #screen-setup, #screen-channel, #screen-ptt { display: none; }
-    #screen-setup { display: block; }
-
-    /* Labels */
     label {
       display: block;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: #8a8a7a;
       letter-spacing: 0.15em;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       text-transform: uppercase;
     }
 
-    /* Inputs */
     input {
       display: block;
       width: 100%;
       background: #0f0f0f;
       border: 1px solid #3a3a2a;
       color: #e0e0d0;
-      padding: 10px 12px;
+      padding: 9px 11px;
       font-family: 'Courier Prime', monospace;
-      font-size: 1rem;
-      letter-spacing: 0.1em;
-      margin-bottom: 16px;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
       outline: none;
     }
 
     input:focus { border-color: #7aaf6a; }
-    input::placeholder { color: #3a3a2a; }
+    input::placeholder { color: #3a3a2a; font-size: 0.8rem; }
 
-    /* Buttons */
-    button.btn {
+    .btn {
       display: block;
       width: 100%;
-      padding: 11px;
+      padding: 10px;
       background: #2a3a28;
       border: 1px solid #4a6741;
       color: #7aaf6a;
       font-family: 'Courier Prime', monospace;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.15s;
     }
 
-    button.btn:hover { background: #354a33; }
-    button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn:hover { background: #354a33; }
 
-    /* Divider */
-    .or {
-      text-align: center;
-      color: #3a3a2a;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      margin: 14px 0;
-    }
+    .sep { text-align: center; color: #3a3a2a; font-size: 0.65rem; letter-spacing: 0.2em; margin: 12px 0; }
 
-    /* Status line */
-    .status {
-      font-size: 0.7rem;
-      color: #8a8a7a;
-      letter-spacing: 0.1em;
+    .msg {
       margin-top: 12px;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
       min-height: 1.2em;
+      color: #8a8a7a;
     }
+    .msg.err { color: #c05050; }
+    .msg.ok  { color: #7aaf6a; }
 
-    .status.err { color: #c05050; }
-    .status.ok  { color: #7aaf6a; }
+    /* PTT screen */
+    #ptt { display: none; }
 
-    /* Channel screen */
-    .info-box {
+    .infobox {
       border: 1px solid #3a3a2a;
-      padding: 14px;
-      margin-bottom: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
       background: #0f0f0f;
     }
 
-    .info-row {
+    .irow {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.8rem;
-      margin-bottom: 6px;
+      font-size: 0.75rem;
+      margin-bottom: 5px;
     }
+    .irow:last-child { margin-bottom: 0; }
+    .irow .k { font-size: 0.6rem; color: #8a8a7a; letter-spacing: 0.12em; text-transform: uppercase; }
+    .irow .v { color: #e0e0d0; letter-spacing: 0.06em; }
+    .irow .v.g { color: #7aaf6a; }
 
-    .info-row:last-child { margin-bottom: 0; }
-
-    .info-row .key { color: #8a8a7a; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; }
-    .info-row .val { color: #e0e0d0; letter-spacing: 0.08em; }
-    .info-row .val.green { color: #7aaf6a; }
-
-    .copy-btn {
+    .cbtn {
       background: none;
       border: 1px solid #3a3a2a;
       color: #8a8a7a;
-      padding: 2px 8px;
+      padding: 2px 7px;
       font-family: 'Courier Prime', monospace;
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       letter-spacing: 0.1em;
       cursor: pointer;
-      transition: all 0.15s;
-      width: auto;
-      display: inline-block;
-      margin-bottom: 0;
     }
+    .cbtn:hover { border-color: #7aaf6a; color: #7aaf6a; }
 
-    .copy-btn:hover { border-color: #7aaf6a; color: #7aaf6a; }
-
-    /* Users list */
     .users {
       border: 1px solid #3a3a2a;
-      margin-bottom: 16px;
-      min-height: 48px;
+      margin-bottom: 14px;
+      min-height: 36px;
     }
 
-    .users .u-row {
-      padding: 7px 12px;
-      font-size: 0.78rem;
+    .urow {
+      padding: 6px 11px;
+      font-size: 0.75rem;
       border-bottom: 1px solid #2a2a1a;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      letter-spacing: 0.06em;
+      align-items: center;
     }
-
-    .users .u-row:last-child { border-bottom: none; }
-    .users .u-row .u-name { color: #c0c0b0; }
-    .users .u-row .u-name.me { color: #7aaf6a; }
-    .users .u-row .u-badge {
-      font-size: 0.6rem;
-      letter-spacing: 0.12em;
-      padding: 1px 6px;
+    .urow:last-child { border-bottom: none; }
+    .urow .un { color: #c0c0b0; }
+    .urow .un.me { color: #7aaf6a; }
+    .urow .ub {
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      padding: 1px 5px;
       border: 1px solid #3a3a2a;
       color: #8a8a7a;
     }
-    .users .u-row .u-badge.speaking {
-      border-color: #7aaf6a;
-      color: #7aaf6a;
-      animation: blink .6s infinite;
-    }
+    .urow .ub.sp { border-color: #7aaf6a; color: #7aaf6a; animation: bl .6s infinite; }
+    .urow .ub.tx { border-color: #c05050; color: #c05050; }
 
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes bl { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-    /* PTT Button */
-    .ptt-area {
+    .ptt-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      margin: 8px 0 16px;
+      gap: 12px;
+      margin: 8px 0 14px;
     }
 
     #ptt-btn {
-      width: 140px;
-      height: 140px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       border: 3px solid #4a6741;
       background: #1a2a18;
       color: #7aaf6a;
       font-family: 'Courier Prime', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      text-align: center;
       cursor: pointer;
-      transition: all 0.1s;
-      user-select: none;
-      -webkit-user-select: none;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 0 #0a0f0a, inset 0 1px 0 rgba(255,255,255,0.05);
+      gap: 7px;
+      box-shadow: 0 4px 0 #0a0a08, inset 0 1px 0 rgba(255,255,255,0.04);
+      user-select: none;
+      -webkit-user-select: none;
+      transition: all 0.08s;
     }
 
-    #ptt-btn .ptt-icon { font-size: 2rem; }
+    #ptt-btn .icon { font-size: 1.8rem; }
 
-    #ptt-btn:active, #ptt-btn.tx {
+    #ptt-btn.tx {
       transform: translateY(3px);
-      box-shadow: 0 1px 0 #0a0f0a, inset 0 2px 4px rgba(0,0,0,0.4);
+      box-shadow: 0 1px 0 #0a0a08;
       border-color: #c05050;
       background: #2a1010;
       color: #c05050;
     }
 
-    .rx-line {
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
+    .rxline {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
       color: #4a4a3a;
       text-align: center;
-      height: 1.2em;
     }
+    .rxline.rx { color: #7aaf6a; }
+    .rxline.tx { color: #c05050; }
 
-    .rx-line.active { color: #7aaf6a; }
-    .rx-line.tx { color: #c05050; }
+    .hint { font-size: 0.58rem; color: #3a3a2a; letter-spacing: 0.1em; text-align: center; }
 
-    /* Connecting overlay */
-    .connecting {
-      text-align: center;
-      padding: 30px 0;
-      color: #8a8a7a;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-    }
-
-    .dot-anim::after {
-      content: '';
-      animation: dots 1.2s infinite;
-    }
-    @keyframes dots {
-      0%  { content: '.'; }
-      33% { content: '..'; }
-      66% { content: '...'; }
-    }
+    /* loading */
+    #loading { display: none; text-align: center; padding: 28px 0; }
+    .spin { font-size: 0.72rem; color: #8a8a7a; letter-spacing: 0.15em; }
   </style>
 </head>
 <body>
@@ -275,388 +213,324 @@
 
   <div class="header">
     <h1>▌SRTC — Radio Tactique</h1>
-    <p>GENDARMERIE NATIONALE · RÉSEAU P2P CHIFFRÉ</p>
+    <p>GENDARMERIE NATIONALE · RÉSEAU P2P</p>
   </div>
 
-  <!-- ===== SETUP ===== -->
-  <div id="screen-setup">
-
+  <!-- SETUP -->
+  <div id="setup">
     <label>Créer un canal</label>
-    <input id="inp-create" type="text" placeholder="nom du canal (ex: ALPHA-7)..."/>
-    <button class="btn" onclick="doCreate()">▶ Créer</button>
+    <input id="in-name" type="text" placeholder="nom du canal (ex: ALPHA-7)"/>
+    <button class="btn" id="btn-create" onclick="doCreate()">▶ Créer le canal</button>
 
-    <div class="or">— ou —</div>
+    <div class="sep">— ou —</div>
 
-    <label>Rejoindre un canal existant</label>
-    <input id="inp-code" type="text" placeholder="code du canal..."/>
-    <input id="inp-callsign" type="text" placeholder="votre indicatif (ex: ADJ MARTIN)..."/>
-    <button class="btn" onclick="doJoin()">▶ Rejoindre</button>
+    <label>Rejoindre un canal</label>
+    <input id="in-code"      type="text" placeholder="code du canal"/>
+    <input id="in-callsign"  type="text" placeholder="votre indicatif (ex: ADJ MARTIN)"/>
+    <button class="btn" id="btn-join" onclick="doJoin()">▶ Rejoindre</button>
 
-    <div class="status" id="setup-status"></div>
+    <div class="msg" id="msg"></div>
   </div>
 
-  <!-- ===== CONNECTING ===== -->
-  <div id="screen-connecting" style="display:none">
-    <div class="connecting">
-      <div>CONNEXION AU CANAL<span class="dot-anim"></span></div>
-    </div>
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="spin" id="loading-txt">Connexion...</div>
   </div>
 
-  <!-- ===== PTT ===== -->
-  <div id="screen-ptt">
-
-    <div class="info-box">
-      <div class="info-row">
-        <span class="key">Canal</span>
-        <span class="val" id="disp-canal">—</span>
-      </div>
-      <div class="info-row">
-        <span class="key">Indicatif</span>
-        <span class="val green" id="disp-callsign">—</span>
-      </div>
-      <div class="info-row">
-        <span class="key">Unités</span>
-        <span class="val" id="disp-units">0</span>
-      </div>
-      <div class="info-row">
-        <span class="key">Code à partager</span>
-        <button class="copy-btn" onclick="copyCode()" id="copy-btn">COPIER</button>
-      </div>
+  <!-- PTT -->
+  <div id="ptt">
+    <div class="infobox">
+      <div class="irow"><span class="k">Canal</span><span class="v" id="d-canal">—</span></div>
+      <div class="irow"><span class="k">Indicatif</span><span class="v g" id="d-cs">—</span></div>
+      <div class="irow"><span class="k">Unités</span><span class="v" id="d-units">0</span></div>
+      <div class="irow"><span class="k">Partager</span><button class="cbtn" id="cbtn" onclick="copyCode()">COPIER CODE</button></div>
     </div>
 
-    <div class="users" id="users-list"></div>
+    <div class="users" id="ulist"></div>
 
-    <div class="ptt-area">
-      <div class="rx-line" id="rx-line">EN VEILLE</div>
+    <div class="ptt-wrap">
+      <div class="rxline" id="rxline">EN VEILLE</div>
       <button id="ptt-btn"
         onmousedown="startTx()" onmouseup="stopTx()"
         ontouchstart="startTx(event)" ontouchend="stopTx(event)">
-        <div class="ptt-icon">🎙</div>
-        <div id="ptt-txt">PARLER</div>
+        <div class="icon">🎙</div>
+        <div id="ptt-lbl">PARLER</div>
       </button>
-      <div style="font-size:0.6rem;color:#4a4a3a;letter-spacing:.12em;text-align:center">
-        Maintenir pour émettre · [ESPACE]
-      </div>
+      <div class="hint">Maintenir · [ESPACE]</div>
     </div>
-
   </div>
 
 </div>
-
-<!-- Audio -->
 <div id="audios" style="display:none"></div>
 
 <script>
-// ─── State ───────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
 let peer       = null;
 let myId       = '';
 let myCallsign = '';
 let roomId     = '';
-let micStream  = null;
 let isHost     = false;
+let micStream  = null;
+const peers    = {}; // id -> {conn, call, callsign, speaking}
 
-// peerId => { conn, call, callsign, speaking }
-const peers = {};
+// ── UI helpers ────────────────────────────────────────────────
+function showMsg(t, cls='') { $('msg').textContent = t; $('msg').className = 'msg ' + cls; }
+function showSetup()   { $('setup').style.display='block'; $('loading').style.display='none'; $('ptt').style.display='none'; }
+function showLoading(t){ $('setup').style.display='none'; $('loading').style.display='block'; $('ptt').style.display='none'; $('loading-txt').textContent = t||'Connexion...'; }
+function showPTT()     { $('setup').style.display='none'; $('loading').style.display='none'; $('ptt').style.display='block'; }
 
-// ─── Helpers ─────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-
-function setStatus(msg, cls='') {
-  const el = $('setup-status');
-  el.textContent = msg;
-  el.className = 'status ' + cls;
+function setBtns(disabled) {
+  $('btn-create').disabled = disabled;
+  $('btn-join').disabled   = disabled;
 }
 
-function showScreen(name) {
-  ['setup','connecting','ptt'].forEach(s => {
-    const el = $('screen-'+s);
-    if (el) el.style.display = s === name ? 'block' : 'none';
-  });
+// ── Audio ─────────────────────────────────────────────────────
+function addAudio(pid, stream) {
+  removeAudio(pid);
+  const a = document.createElement('audio');
+  a.id = 'a-' + pid; a.autoplay = true; a.srcObject = stream;
+  $('audios').appendChild(a);
+  a.play().catch(()=>{});
 }
+function removeAudio(pid) { const e=$('a-'+pid); if(e) e.remove(); }
+function silentStream()   { return new AudioContext().createMediaStreamDestination().stream; }
 
+// ── Mic ───────────────────────────────────────────────────────
 async function getMic() {
   micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
   micStream.getAudioTracks().forEach(t => t.enabled = false);
 }
 
-function silentStream() {
-  return new AudioContext().createMediaStreamDestination().stream;
-}
-
-function addAudio(pid, stream) {
-  removeAudio(pid);
-  const a = document.createElement('audio');
-  a.id = 'aud-' + pid;
-  a.autoplay = true;
-  a.srcObject = stream;
-  $('audios').appendChild(a);
-  a.play().catch(() => {});
-}
-
-function removeAudio(pid) {
-  const el = $('aud-' + pid);
-  if (el) el.remove();
-}
-
-// ─── UI ──────────────────────────────────────────────────────
-function renderUsers() {
-  const ul = $('users-list');
+// ── Render ────────────────────────────────────────────────────
+function render() {
+  const ul = $('ulist');
   ul.innerHTML = '';
-
-  // Moi
+  // Me
   const me = document.createElement('div');
-  me.className = 'u-row';
-  me.innerHTML = `<span class="u-name me">▶ ${esc(myCallsign)}</span><span class="u-badge" id="badge-me">MOI</span>`;
+  me.className = 'urow';
+  me.innerHTML = `<span class="un me">▶ ${esc(myCallsign)}</span><span class="ub" id="b-me">MOI</span>`;
   ul.appendChild(me);
-
-  for (const [pid, p] of Object.entries(peers)) {
-    const row = document.createElement('div');
-    row.className = 'u-row';
-    row.id = 'urow-' + pid;
-    const badge = p.speaking
-      ? `<span class="u-badge speaking">● PARLE</span>`
-      : `<span class="u-badge">EN LIGNE</span>`;
-    row.innerHTML = `<span class="u-name">${esc(p.callsign)}</span>${badge}`;
-    ul.appendChild(row);
+  // Others
+  for (const [id, p] of Object.entries(peers)) {
+    const d = document.createElement('div');
+    d.className = 'urow'; d.id = 'r-' + id;
+    d.innerHTML = `<span class="un">${esc(p.callsign)}</span><span class="ub ${p.speaking?'sp':''}">${p.speaking?'● PARLE':'EN LIGNE'}</span>`;
+    ul.appendChild(d);
   }
-
-  $('disp-units').textContent = Object.keys(peers).length;
+  $('d-units').textContent = Object.keys(peers).length;
   updateRx();
 }
 
 function updateRx() {
-  const speaking = Object.values(peers).filter(p => p.speaking);
-  const rx = $('rx-line');
-  if (speaking.length > 0) {
-    rx.className = 'rx-line active';
-    rx.textContent = '● RÉCEPTION — ' + speaking.map(p=>p.callsign).join(', ');
+  const sp = Object.values(peers).filter(p => p.speaking);
+  const rx = $('rxline');
+  if (sp.length) {
+    rx.className = 'rxline rx';
+    rx.textContent = '● RÉCEPTION — ' + sp.map(p=>p.callsign).join(', ');
   } else {
-    rx.className = 'rx-line';
+    rx.className = 'rxline';
     rx.textContent = 'EN VEILLE';
   }
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
 function copyCode() {
-  const code = roomId.replace('srtc-','');
-  navigator.clipboard.writeText(code).then(() => {
-    const b = $('copy-btn');
-    b.textContent = 'COPIÉ !';
-    setTimeout(() => b.textContent = 'COPIER', 2000);
+  navigator.clipboard.writeText(roomId.replace('srtc-','')).then(() => {
+    $('cbtn').textContent = 'COPIÉ !';
+    setTimeout(() => $('cbtn').textContent = 'COPIER CODE', 2000);
   });
 }
 
-function switchToPTT() {
-  $('disp-canal').textContent    = roomId.replace('srtc-','').toUpperCase();
-  $('disp-callsign').textContent = myCallsign;
-  showScreen('ptt');
-  renderUsers();
-}
-
-// ─── Mesh data protocol ──────────────────────────────────────
-// { type:'hello', callsign }
-// { type:'peer-list', peers:[{id,callsign}] }
-// { type:'speaking', val:bool }
-
+// ── Data messages ─────────────────────────────────────────────
 function broadcast(msg) {
-  for (const p of Object.values(peers)) {
+  for (const p of Object.values(peers))
     if (p.conn && p.conn.open) try { p.conn.send(msg); } catch(e) {}
-  }
 }
 
 function onData(fromId, msg) {
   if (!peers[fromId]) return;
-  if (msg.type === 'hello') {
-    peers[fromId].callsign = msg.callsign;
-    renderUsers();
-  }
-  if (msg.type === 'speaking') {
-    peers[fromId].speaking = msg.val;
-    updateRx();
-    const row = $('urow-' + fromId);
-    if (row) {
-      const b = row.querySelector('.u-badge');
-      if (msg.val) { b.className='u-badge speaking'; b.textContent='● PARLE'; }
-      else          { b.className='u-badge'; b.textContent='EN LIGNE'; }
-    }
-  }
-  if (msg.type === 'peer-list') {
-    for (const p of msg.peers) {
-      if (p.id !== myId && !peers[p.id]) {
-        connectPeer(p.id, p.callsign);
-      }
-    }
+  if (msg.type === 'hello') { peers[fromId].callsign = msg.callsign; render(); }
+  if (msg.type === 'speaking') { peers[fromId].speaking = msg.val; render(); }
+  if (msg.type === 'peers') {
+    for (const p of msg.list)
+      if (p.id !== myId && !peers[p.id]) connectOut(p.id, p.callsign);
   }
 }
 
-// ─── Connect to a peer (outgoing) ────────────────────────────
-function connectPeer(pid, knownCallsign) {
+// ── Connect outgoing to a peer ────────────────────────────────
+function connectOut(pid, knownCs) {
   if (peers[pid]) return;
-  peers[pid] = { conn: null, call: null, callsign: knownCallsign || pid.slice(0,8), speaking: false };
+  peers[pid] = { conn: null, call: null, callsign: knownCs || '???', speaking: false };
 
-  // Data
-  const conn = peer.connect(pid, { reliable: true });
+  const conn = peer.connect(pid, { reliable: true, serialization: 'json' });
   peers[pid].conn = conn;
   conn.on('open', () => {
     conn.send({ type: 'hello', callsign: myCallsign });
-    // Tell them about other peers
-    const list = Object.entries(peers)
-      .filter(([id]) => id !== pid)
-      .map(([id, p]) => ({ id, callsign: p.callsign }));
-    if (list.length) conn.send({ type: 'peer-list', peers: list });
+    // Tell them about our other peers
+    const list = Object.entries(peers).filter(([id])=>id!==pid).map(([id,p])=>({id,callsign:p.callsign}));
+    if (list.length) conn.send({ type: 'peers', list });
   });
   conn.on('data',  msg => onData(pid, msg));
-  conn.on('close', ()  => removePeer(pid));
-  conn.on('error', ()  => removePeer(pid));
+  conn.on('close', ()  => { delete peers[pid]; removeAudio(pid); render(); });
+  conn.on('error', ()  => { delete peers[pid]; removeAudio(pid); render(); });
 
   // Media
-  const call = peer.call(pid, micStream || silentStream());
+  const call = peer.call(pid, micStream);
   peers[pid].call = call;
   call.on('stream', s => addAudio(pid, s));
   call.on('close',  () => removeAudio(pid));
   call.on('error',  () => removeAudio(pid));
 
-  renderUsers();
+  render();
 }
 
-function removePeer(pid) {
-  removeAudio(pid);
-  delete peers[pid];
-  renderUsers();
-}
-
-// ─── Incoming connections ─────────────────────────────────────
-function setupIncoming() {
-  // Incoming data
+// ── Setup incoming listeners (used by both host & joiner) ─────
+function setupPeerListeners() {
+  // Incoming data connection
   peer.on('connection', conn => {
     const pid = conn.peer;
-    if (!peers[pid]) peers[pid] = { conn, call: null, callsign: pid.slice(0,8), speaking: false };
+    if (!peers[pid]) peers[pid] = { conn, call: null, callsign: '???', speaking: false };
     else peers[pid].conn = conn;
 
     conn.on('open', () => {
       conn.send({ type: 'hello', callsign: myCallsign });
-      // If host: send peer list
       if (isHost) {
-        const list = Object.entries(peers)
-          .filter(([id]) => id !== pid)
-          .map(([id, p]) => ({ id, callsign: p.callsign }));
-        if (list.length) conn.send({ type: 'peer-list', peers: list });
-        // Notify others about new peer
-        broadcast({ type: 'peer-list', peers: [{ id: pid, callsign: peers[pid].callsign }] });
+        // Send existing peers to newcomer
+        const list = Object.entries(peers).filter(([id])=>id!==pid).map(([id,p])=>({id,callsign:p.callsign}));
+        if (list.length) conn.send({ type: 'peers', list });
+        // Tell existing peers about newcomer
+        broadcast({ type: 'peers', list: [{ id: pid, callsign: peers[pid].callsign }] });
       }
     });
     conn.on('data',  msg => onData(pid, msg));
-    conn.on('close', ()  => removePeer(pid));
-    conn.on('error', ()  => removePeer(pid));
-    renderUsers();
+    conn.on('close', ()  => { delete peers[pid]; removeAudio(pid); render(); });
+    conn.on('error', ()  => { delete peers[pid]; removeAudio(pid); render(); });
+    render();
   });
 
-  // Incoming media
+  // Incoming media call
   peer.on('call', call => {
     const pid = call.peer;
-    if (!peers[pid]) peers[pid] = { conn: null, call, callsign: pid.slice(0,8), speaking: false };
+    if (!peers[pid]) peers[pid] = { conn: null, call, callsign: '???', speaking: false };
     else peers[pid].call = call;
-    call.answer(micStream || silentStream());
+    call.answer(micStream);
     call.on('stream', s => addAudio(pid, s));
     call.on('close',  () => removeAudio(pid));
-    renderUsers();
+    render();
   });
+
+  peer.on('disconnected', () => peer.reconnect());
 }
 
-// ─── CREATE ──────────────────────────────────────────────────
+// ── Go to PTT screen ──────────────────────────────────────────
+function goToPTT() {
+  $('d-canal').textContent = roomId.replace('srtc-','').toUpperCase();
+  $('d-cs').textContent    = myCallsign;
+  showPTT();
+  render();
+}
+
+// ── CREATE ────────────────────────────────────────────────────
 async function doCreate() {
-  const raw = $('inp-create').value.trim().replace(/\s+/g,'-') || Math.random().toString(36).substr(2,5).toUpperCase();
+  const raw = $('in-name').value.trim().replace(/\s+/g,'-') || Math.random().toString(36).substr(2,5).toUpperCase();
   roomId     = 'srtc-' + raw;
   myCallsign = 'COMMANDANT';
   isHost     = true;
 
-  setStatus('Accès microphone...');
-  try { await getMic(); } catch(e) { setStatus('Micro refusé : ' + e.message, 'err'); return; }
+  setBtns(true);
+  showMsg('Accès microphone...');
+  try { await getMic(); } catch(e) { showMsg('Micro refusé : '+e.message,'err'); setBtns(false); return; }
 
-  setStatus('Ouverture du canal...');
-  showScreen('connecting');
+  showLoading('Ouverture du canal...');
 
   peer = new Peer(roomId, { debug: 0 });
 
   peer.on('open', id => {
     myId = id;
-    setupIncoming();
-    switchToPTT();
+    setupPeerListeners();
+    goToPTT();
   });
 
   peer.on('error', e => {
-    showScreen('setup');
-    if (e.type === 'unavailable-id') setStatus('Ce nom de canal est déjà pris.', 'err');
-    else setStatus('Erreur : ' + e.message, 'err');
+    showSetup();
+    setBtns(false);
+    if (e.type === 'unavailable-id') showMsg('Ce nom de canal est déjà pris, essayez un autre.','err');
+    else showMsg('Erreur : '+e.type,'err');
   });
 }
 
-// ─── JOIN ─────────────────────────────────────────────────────
+// ── JOIN ──────────────────────────────────────────────────────
 async function doJoin() {
-  const code = $('inp-code').value.trim();
-  const cs   = $('inp-callsign').value.trim();
-  if (!code) { setStatus('Entrez un code de canal.', 'err'); return; }
+  const code = $('in-code').value.trim();
+  const cs   = $('in-callsign').value.trim();
+  if (!code) { showMsg('Entrez un code de canal.','err'); return; }
 
-  roomId     = code.startsWith('srtc-') ? code : 'srtc-' + code;
+  roomId     = code.startsWith('srtc-') ? code : 'srtc-'+code;
   myCallsign = cs || 'AGENT-' + Math.random().toString(36).substr(2,4).toUpperCase();
   isHost     = false;
 
-  setStatus('Accès microphone...');
-  try { await getMic(); } catch(e) { setStatus('Micro refusé : ' + e.message, 'err'); return; }
+  setBtns(true);
+  showMsg('Accès microphone...');
+  try { await getMic(); } catch(e) { showMsg('Micro refusé : '+e.message,'err'); setBtns(false); return; }
 
-  setStatus('Connexion...');
-  showScreen('connecting');
+  showLoading('Connexion au canal...');
 
   peer = new Peer(undefined, { debug: 0 });
 
   peer.on('open', id => {
     myId = id;
-    setupIncoming();
+    setupPeerListeners();
 
-    // Init slot for host
+    // Connect to host — data first
     peers[roomId] = { conn: null, call: null, callsign: 'COMMANDANT', speaking: false };
 
-    // Data to host
-    const conn = peer.connect(roomId, { reliable: true });
+    const conn = peer.connect(roomId, { reliable: true, serialization: 'json' });
     peers[roomId].conn = conn;
+
+    let connected = false;
+
     conn.on('open', () => {
+      connected = true;
       conn.send({ type: 'hello', callsign: myCallsign });
-      switchToPTT(); // ← on switch APRÈS que la connexion data est ouverte
-    });
-    conn.on('data',  msg => onData(roomId, msg));
-    conn.on('close', ()  => removePeer(roomId));
-    conn.on('error', ()  => {
-      showScreen('setup');
-      setStatus('Canal introuvable — vérifiez le code.', 'err');
+
+      // Media to host
+      const call = peer.call(roomId, micStream);
+      peers[roomId].call = call;
+      call.on('stream', s => addAudio(roomId, s));
+      call.on('close',  () => removeAudio(roomId));
+      call.on('error',  () => {});
+
+      goToPTT();
     });
 
-    // Media to host
-    const call = peer.call(roomId, micStream || silentStream());
-    peers[roomId].call = call;
-    call.on('stream', s => addAudio(roomId, s));
-    call.on('close',  () => removeAudio(roomId));
-    call.on('error',  () => {});
+    conn.on('data',  msg => onData(roomId, msg));
+    conn.on('close', ()  => { if (peers[roomId]) { delete peers[roomId]; removeAudio(roomId); render(); } });
+    conn.on('error', ()  => {
+      if (!connected) {
+        showSetup(); setBtns(false); showMsg('Canal introuvable — vérifiez le code.','err');
+      }
+    });
   });
 
   peer.on('error', e => {
-    showScreen('setup');
-    if (e.type === 'peer-unavailable') setStatus('Canal introuvable — vérifiez le code.', 'err');
-    else setStatus('Erreur : ' + e.message, 'err');
+    showSetup();
+    setBtns(false);
+    if (e.type === 'peer-unavailable') showMsg('Canal introuvable — vérifiez le code.','err');
+    else showMsg('Erreur réseau : '+e.type,'err');
   });
 }
 
-// ─── PTT ─────────────────────────────────────────────────────
+// ── PTT ───────────────────────────────────────────────────────
 function startTx(e) {
   if (e) e.preventDefault();
   if (!micStream) return;
   micStream.getAudioTracks().forEach(t => t.enabled = true);
   $('ptt-btn').classList.add('tx');
-  $('ptt-txt').textContent = 'ÉMISSION';
-  $('rx-line').className = 'rx-line tx';
-  $('rx-line').textContent = '● VOUS TRANSMETTEZ';
+  $('ptt-lbl').textContent = 'ÉMISSION';
+  $('rxline').className = 'rxline tx';
+  $('rxline').textContent = '● VOUS TRANSMETTEZ';
   broadcast({ type: 'speaking', val: true });
 }
 
@@ -665,20 +539,16 @@ function stopTx(e) {
   if (!micStream) return;
   micStream.getAudioTracks().forEach(t => t.enabled = false);
   $('ptt-btn').classList.remove('tx');
-  $('ptt-txt').textContent = 'PARLER';
-  updateRx();
+  $('ptt-lbl').textContent = 'PARLER';
   broadcast({ type: 'speaking', val: false });
+  updateRx();
 }
 
-// Keyboard
 document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && $('screen-ptt').style.display !== 'none') {
-    e.preventDefault();
-    if (!e.repeat) startTx();
-  }
+  if (e.code==='Space' && $('ptt').style.display!=='none') { e.preventDefault(); if(!e.repeat) startTx(); }
 });
 document.addEventListener('keyup', e => {
-  if (e.code === 'Space' && $('screen-ptt').style.display !== 'none') stopTx();
+  if (e.code==='Space' && $('ptt').style.display!=='none') stopTx();
 });
 </script>
 </body>
