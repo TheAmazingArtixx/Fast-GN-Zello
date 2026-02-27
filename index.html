@@ -1,865 +1,1108 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SRTC — Système Radio Tactique Connecté</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SRTC — Réseau Radio Tactique</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=VT323&family=Courier+Prime:wght@400;700&display=swap');
 
     :root {
-      --navy:       #07122a;
-      --navy-mid:   #0d1f42;
-      --navy-light: #162d5c;
-      --gold:       #c8a84b;
-      --gold-dim:   #c8a84b22;
-      --gold-bright:#e8c96a;
-      --red-alert:  #d9342b;
-      --red-dim:    #d9342b28;
-      --green-ok:   #2ecc71;
-      --green-dim:  #2ecc7122;
-      --text:       #dce8f5;
-      --muted:      #5a7a9a;
-      --border:     #1e3560;
+      --paper:    #d4c9a8;
+      --paper2:   #c8bb96;
+      --ink:      #1a1a14;
+      --ink-fade: #4a4535;
+      --navy:     #1a2540;
+      --gold:     #8a6d20;
+      --red:      #8b1a1a;
+      --green:    #1a5c2a;
+      --border:   #7a6840;
+      --stripe:   rgba(0,0,0,0.04);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--navy);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
+      background-color: #2a2418;
+      background-image:
+        repeating-linear-gradient(0deg, var(--stripe) 0px, var(--stripe) 1px, transparent 1px, transparent 24px);
+      font-family: 'Courier Prime', monospace;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow-x: hidden;
+      padding: 20px 16px 40px;
+    }
+
+    /* ===== DOCUMENT CONTAINER ===== */
+    .document {
+      width: 100%;
+      max-width: 680px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      box-shadow:
+        4px 4px 0 #1a1a0a,
+        8px 8px 0 #0f0f08,
+        inset 0 0 80px rgba(0,0,0,0.06);
       position: relative;
     }
 
-    body::after {
+    /* Texture grain */
+    .document::before {
       content: '';
-      position: fixed;
+      position: absolute;
       inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none;
-      z-index: 999;
+      z-index: 1;
+      border-radius: 0;
     }
 
-    body::before {
+    /* Red margin line */
+    .document::after {
       content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(ellipse 70% 40% at 50% 0%, #1a3a7022, transparent),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px),
-        linear-gradient(0deg, var(--border) 1px, transparent 1px);
-      background-size: 100%, 60px 60px, 60px 60px;
-      opacity: 0.3;
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 52px;
+      width: 1px;
+      background: rgba(139,26,26,0.35);
+      z-index: 2;
       pointer-events: none;
     }
 
-    .classif {
-      width: 100%;
-      background: var(--gold);
-      text-align: center;
-      padding: 4px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.62rem;
-      font-weight: bold;
-      color: var(--navy);
-      letter-spacing: 0.35em;
+    /* ===== HEADER STAMP ===== */
+    .doc-header {
+      border-bottom: 3px double var(--border);
+      padding: 18px 24px 14px 64px;
       position: relative;
-      z-index: 10;
+      z-index: 3;
+      background: linear-gradient(180deg, #cfc49f, var(--paper));
     }
 
-    .topbar {
-      width: 100%;
-      background: linear-gradient(90deg, #050e22, var(--navy-mid), #050e22);
-      border-bottom: 1px solid var(--gold);
-      padding: 0 32px;
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .republic-block {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      height: 64px;
-      position: relative;
-      z-index: 10;
+      gap: 12px;
     }
 
-    .logo-block { display: flex; align-items: center; gap: 14px; }
-
-    .logo-emblem { width: 40px; height: 40px; }
-
-    .logo-text { display: flex; flex-direction: column; }
-
-    .logo-text .title {
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--gold);
-      letter-spacing: 0.25em;
-      line-height: 1;
+    /* Marianne SVG */
+    .emblem {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
     }
 
-    .logo-text .subtitle {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.55rem;
-      color: var(--muted);
+    .org-title { line-height: 1.2; }
+
+    .org-title .rep {
+      font-family: 'Special Elite', serif;
+      font-size: 0.6rem;
+      color: var(--ink-fade);
       letter-spacing: 0.2em;
-      margin-top: 2px;
+      text-transform: uppercase;
     }
 
-    .topbar-right { display: flex; align-items: center; gap: 24px; }
+    .org-title .main {
+      font-family: 'Special Elite', serif;
+      font-size: 1.05rem;
+      color: var(--navy);
+      letter-spacing: 0.05em;
+      font-weight: bold;
+    }
 
-    .sys-info {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--muted);
-      letter-spacing: 0.1em;
+    .org-title .sub {
+      font-size: 0.68rem;
+      color: var(--ink-fade);
+      letter-spacing: 0.08em;
+    }
+
+    .doc-ref {
       text-align: right;
+      font-size: 0.62rem;
+      color: var(--ink-fade);
       line-height: 1.7;
     }
 
-    .sys-info .live { color: var(--green-ok); }
-
-    #clock {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.78rem;
-      color: var(--gold);
-      letter-spacing: 0.12em;
-      min-width: 70px;
-      text-align: right;
+    .doc-ref .ref-num {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      color: var(--navy);
+      letter-spacing: 0.1em;
     }
 
-    .main {
-      width: 100%;
-      max-width: 860px;
-      padding: 28px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .section-header .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
-    .section-header .label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--gold);
-      letter-spacing: 0.28em;
-      white-space: nowrap;
-    }
-
-    .panel {
-      background: linear-gradient(135deg, #0a1830, #0d1f42);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      position: relative;
-      overflow: hidden;
-      animation: fadeIn 0.35s ease both;
-    }
-
-    .panel::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
-
-    .panel .corner { position: absolute; width: 10px; height: 10px; border-color: var(--gold); border-style: solid; opacity: 0.55; }
-    .panel .corner.tl { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
-    .panel .corner.tr { top: 5px; right: 5px; border-width: 1px 1px 0 0; }
-    .panel .corner.bl { bottom: 5px; left: 5px; border-width: 0 0 1px 1px; }
-    .panel .corner.br { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
-
-    .panel-body { padding: 22px 26px; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .tab-row {
-      display: flex;
-      gap: 0;
-      margin-bottom: 22px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 11px 16px;
-      background: transparent;
-      border: none;
-      border-right: 1px solid var(--border);
-      color: var(--muted);
-      cursor: pointer;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 600;
-      font-size: 0.85rem;
-      letter-spacing: 0.18em;
-      transition: all 0.2s;
-      text-transform: uppercase;
-    }
-
-    .tab:last-child { border-right: none; }
-    .tab.active { background: var(--gold-dim); color: var(--gold); }
-
-    .field-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.22em;
-      color: var(--muted);
-      margin-bottom: 7px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .field-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-    input[type="text"] {
-      width: 100%;
-      background: #050e22;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 11px 14px;
-      color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.88rem;
-      outline: none;
-      letter-spacing: 0.12em;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      margin-bottom: 16px;
-    }
-
-    input[type="text"]:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-dim); }
-    input[type="text"]::placeholder { color: var(--muted); opacity: 0.45; }
-
-    .btn-primary {
-      width: 100%;
-      padding: 13px 20px;
-      background: transparent;
-      border: 1px solid var(--gold);
-      border-radius: 2px;
-      color: var(--gold);
-      cursor: pointer;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 0.92rem;
+    .classif-stamp {
+      margin-top: 10px;
+      padding: 4px 10px;
+      border: 2px solid var(--red);
+      display: inline-block;
+      color: var(--red);
+      font-family: 'Special Elite', serif;
+      font-size: 0.65rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      transition: all 0.18s;
+      transform: rotate(-1deg);
+    }
+
+    .doc-title-bar {
+      margin-top: 12px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .doc-title-bar h1 {
+      font-family: 'Special Elite', serif;
+      font-size: 1.1rem;
+      color: var(--navy);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .doc-title-bar .subtitle {
+      font-size: 0.65rem;
+      color: var(--ink-fade);
+      letter-spacing: 0.15em;
+      margin-top: 2px;
+    }
+
+    /* ===== BODY ===== */
+    .doc-body {
+      padding: 24px 24px 24px 64px;
       position: relative;
-      overflow: hidden;
+      z-index: 3;
     }
 
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--gold);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.2s;
-    }
+    /* ===== SECTION ===== */
+    .section { margin-bottom: 22px; }
 
-    .btn-primary:hover::before { transform: scaleX(1); }
-    .btn-primary:hover { color: var(--navy); }
-    .btn-primary span { position: relative; z-index: 1; }
-
-    .error-box {
-      display: none;
-      margin-top: 14px;
-      padding: 10px 14px;
-      background: var(--red-dim);
-      border: 1px solid var(--red-alert);
-      border-radius: 2px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--red-alert);
-      letter-spacing: 0.1em;
-    }
-
-    .status-strip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
-      background: #050e22;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.66rem;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-    }
-
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
-    .status-strip.ok .status-dot { background: var(--green-ok); box-shadow: 0 0 5px var(--green-ok); }
-    .status-strip.ok { color: var(--text); }
-    .status-strip.tx .status-dot { background: var(--red-alert); box-shadow: 0 0 7px var(--red-alert); animation: blink 0.4s infinite; }
-    .status-strip.tx { color: var(--red-alert); }
-
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .metric {
-      background: #050e22;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 11px 12px;
-      text-align: center;
-    }
-
-    .metric .m-val { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: var(--gold); }
-    .metric .m-lbl { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; color: var(--muted); letter-spacing: 0.15em; margin-top: 4px; }
-
-    /* OP section */
-    #op-section { display: none; }
-
-    .op-grid {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .op-id-block {
-      background: #050e22;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 12px 14px;
-    }
-
-    .op-id-block .lbl { font-family: 'Share Tech Mono', monospace; font-size: 0.56rem; color: var(--muted); letter-spacing: 0.2em; }
-    .op-id-block .val { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--gold); letter-spacing: 0.18em; margin-top: 3px; }
-
-    .mode-badge {
-      padding: 8px 14px;
-      border-radius: 2px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.6rem;
+    .section-title {
+      font-family: 'Special Elite', serif;
+      font-size: 0.75rem;
+      color: var(--navy);
       letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      margin-bottom: 14px;
+    }
+
+    /* ===== TABS (old style radio buttons) ===== */
+    .mode-select {
+      display: flex;
+      gap: 0;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 9px 12px;
+      background: var(--paper2);
+      border: none;
+      border-right: 1px solid var(--border);
+      color: var(--ink-fade);
+      cursor: pointer;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .mode-btn:last-child { border-right: none; }
+
+    .mode-btn.active {
+      background: var(--navy);
+      color: var(--paper);
+    }
+
+    /* ===== FORM FIELDS ===== */
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--ink-fade);
+      letter-spacing: 0.12em;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      width: 100%;
+      background: #ede5c8;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 8px 10px;
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      color: var(--ink);
+      letter-spacing: 0.08em;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus {
+      border-color: var(--navy);
+      background: #f0e8cc;
+    }
+
+    .field input::placeholder {
+      color: var(--border);
+      font-size: 0.9rem;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--navy);
+      color: var(--paper);
+      border: 2px solid var(--navy);
+      cursor: pointer;
+      font-family: 'Special Elite', serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
       text-align: center;
     }
 
-    .mode-badge.commandant { background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); }
-    .mode-badge.agent { background: var(--green-dim); border: 1px solid var(--green-ok); color: var(--green-ok); }
+    .btn:hover { background: var(--ink); border-color: var(--ink); }
 
-    .copy-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 3px 9px;
-      border-radius: 2px;
-      cursor: pointer;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.1em;
-      transition: all 0.2s;
-      margin-top: 6px;
-      display: inline-block;
+    /* ===== ERROR ===== */
+    .error {
+      display: none;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border: 1px solid var(--red);
+      background: rgba(139,26,26,0.06);
+      font-size: 0.72rem;
+      color: var(--red);
+      letter-spacing: 0.08em;
     }
 
-    .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+    /* ===== STATUS TABLE ===== */
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      margin-bottom: 6px;
+    }
 
-    /* PTT */
-    .ptt-container {
+    .status-table td {
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .status-table td:first-child {
+      background: var(--paper2);
+      color: var(--ink-fade);
+      letter-spacing: 0.1em;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      width: 38%;
+    }
+
+    .status-table td:last-child {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      color: var(--ink);
+      letter-spacing: 0.08em;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 1px 8px;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      font-family: 'Courier Prime', monospace;
+    }
+
+    .pill.green { background: rgba(26,92,42,0.15); color: var(--green); border: 1px solid var(--green); }
+    .pill.red   { background: rgba(139,26,26,0.15); color: var(--red); border: 1px solid var(--red); }
+    .pill.navy  { background: rgba(26,37,64,0.15); color: var(--navy); border: 1px solid var(--navy); }
+
+    /* ===== PTT BUTTON ===== */
+    .ptt-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 22px;
-      padding: 28px 0;
+      gap: 18px;
+      padding: 24px 0;
     }
 
     #ptt-btn {
-      width: 175px;
-      height: 175px;
+      width: 160px;
+      height: 160px;
       border-radius: 50%;
-      border: 2px solid var(--gold);
-      background: radial-gradient(circle at 40% 35%, #162d5c, #07122a);
+      background: radial-gradient(circle at 38% 32%, #3a4f7a, var(--navy));
+      border: 5px solid var(--ink);
+      box-shadow:
+        0 6px 0 #0a0a08,
+        0 8px 12px rgba(0,0,0,0.5),
+        inset 0 2px 4px rgba(255,255,255,0.08);
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      transition: all 0.12s;
-      position: relative;
+      gap: 10px;
+      transition: all 0.1s;
       user-select: none;
       -webkit-user-select: none;
-      box-shadow: 0 0 0 8px #c8a84b0a, 0 0 0 16px #c8a84b05, inset 0 1px 0 #ffffff10;
+      position: relative;
     }
 
-    #ptt-btn::before {
-      content: '';
-      position: absolute;
-      inset: -12px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      animation: rotate 25s linear infinite;
-    }
-
-    #ptt-btn::after {
-      content: '';
-      position: absolute;
-      inset: -22px;
-      border-radius: 50%;
-      border: 1px dashed #1e356055;
-      animation: rotate 40s linear infinite reverse;
-    }
-
-    @keyframes rotate { to { transform: rotate(360deg); } }
-
-    #ptt-btn .ptt-icon { font-size: 2.2rem; transition: all 0.12s; }
-    #ptt-btn .ptt-text {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.2em;
-      color: var(--gold);
-      text-align: center;
-      line-height: 1.6;
+    #ptt-btn:active, #ptt-btn.tx {
+      transform: translateY(4px);
+      box-shadow:
+        0 2px 0 #0a0a08,
+        0 3px 6px rgba(0,0,0,0.5),
+        inset 0 2px 6px rgba(0,0,0,0.4);
     }
 
     #ptt-btn.tx {
-      border-color: var(--red-alert);
-      background: radial-gradient(circle at 40% 35%, #3a0e0e, #1a0505);
-      box-shadow: 0 0 0 8px #d9342b12, 0 0 30px #d9342b35, 0 0 70px #d9342b12, inset 0 1px 0 #ffffff08;
-      transform: scale(0.97);
+      background: radial-gradient(circle at 38% 32%, #7a2020, var(--red));
     }
 
-    #ptt-btn.tx .ptt-text { color: var(--red-alert); }
+    .ptt-mic { font-size: 2.6rem; }
+
+    .ptt-label {
+      font-family: 'VT323', monospace;
+      font-size: 0.88rem;
+      letter-spacing: 0.22em;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    #ptt-btn.tx .ptt-label { color: rgba(255,200,200,0.9); }
 
     .ptt-hint {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      letter-spacing: 0.14em;
+      font-size: 0.66rem;
+      color: var(--ink-fade);
+      letter-spacing: 0.1em;
       text-align: center;
-      line-height: 1.9;
+      line-height: 1.8;
     }
 
-    /* Listener */
-    .agent-reception {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 28px 0;
-    }
-
-    .signal-indicator {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 24px;
+    /* ===== USERS LIST ===== */
+    #users-list {
+      list-style: none;
       border: 1px solid var(--border);
-      border-radius: 2px;
-      background: #050e22;
-      min-width: 260px;
-      justify-content: center;
+      font-family: 'VT323', monospace;
+      font-size: 0.95rem;
     }
 
-    .signal-bars { display: flex; align-items: flex-end; gap: 4px; height: 22px; }
-    .signal-bars .bar { width: 5px; border-radius: 1px; background: var(--border); transition: background 0.3s; }
-    .signal-bars .bar:nth-child(1) { height: 5px; }
-    .signal-bars .bar:nth-child(2) { height: 9px; }
-    .signal-bars .bar:nth-child(3) { height: 13px; }
-    .signal-bars .bar:nth-child(4) { height: 18px; }
-    .signal-bars .bar:nth-child(5) { height: 22px; }
-
-    .signal-indicator.receiving .signal-bars .bar {
-      background: var(--green-ok);
+    #users-list li {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      letter-spacing: 0.08em;
+      color: var(--ink);
     }
 
-    .signal-indicator.receiving .signal-bars .bar:nth-child(1) { animation: wave 0.8s 0s ease-in-out infinite alternate; }
-    .signal-indicator.receiving .signal-bars .bar:nth-child(2) { animation: wave 0.8s 0.1s ease-in-out infinite alternate; }
-    .signal-indicator.receiving .signal-bars .bar:nth-child(3) { animation: wave 0.8s 0.2s ease-in-out infinite alternate; }
-    .signal-indicator.receiving .signal-bars .bar:nth-child(4) { animation: wave 0.8s 0.3s ease-in-out infinite alternate; }
-    .signal-indicator.receiving .signal-bars .bar:nth-child(5) { animation: wave 0.8s 0.4s ease-in-out infinite alternate; }
+    #users-list li:last-child { border-bottom: none; }
 
-    @keyframes wave { from { opacity: 0.25; } to { opacity: 1; } }
-
-    .signal-text {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      color: var(--muted);
+    #users-list li .badge {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      letter-spacing: 0.1em;
+      font-family: 'Courier Prime', monospace;
     }
 
-    .signal-indicator.receiving .signal-text { color: var(--green-ok); }
+    #users-list li.speaking { background: rgba(26,92,42,0.12); }
+    #users-list li.speaking .badge { background: var(--green); color: #fff; }
 
-    footer {
-      width: 100%;
-      border-top: 1px solid var(--border);
-      padding: 10px 28px;
+    /* ===== RECEPTION INDICATOR ===== */
+    .reception-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--paper2);
+      font-size: 0.72rem;
+      color: var(--ink-fade);
+      letter-spacing: 0.1em;
+    }
+
+    .reception-block .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .reception-block.active { background: rgba(26,92,42,0.1); border-color: var(--green); color: var(--green); }
+    .reception-block.active .dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink .5s infinite; }
+    .reception-block.tx-active { background: rgba(139,26,26,0.1); border-color: var(--red); color: var(--red); }
+    .reception-block.tx-active .dot { background: var(--red); box-shadow: 0 0 6px var(--red); animation: blink .4s infinite; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* ===== FOOTER ===== */
+    .doc-footer {
+      border-top: 3px double var(--border);
+      padding: 10px 24px 12px 64px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 0.6rem;
+      color: var(--ink-fade);
+      letter-spacing: 0.1em;
       position: relative;
-      z-index: 2;
-      margin-top: auto;
+      z-index: 3;
     }
 
-    footer span {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.56rem;
-      color: var(--muted);
-      letter-spacing: 0.14em;
+    #clock {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      color: var(--navy);
+      letter-spacing: 0.12em;
     }
 
-    .enc-badge {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.56rem;
-      color: var(--green-ok);
-      letter-spacing: 0.14em;
+    /* ===== DIVIDER ===== */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 18px 0;
     }
+
+    hr.double {
+      border: none;
+      border-top: 3px double var(--border);
+      margin: 20px 0;
+    }
+
+    /* Helpers */
+    #op-section { display: none; }
   </style>
 </head>
 <body>
 
-<div class="classif">USAGE INTERNE — RÉSEAU TACTIQUE SÉCURISÉ — NE PAS DIFFUSER</div>
+<div class="document">
 
-<header class="topbar">
-  <div class="logo-block">
-    <svg class="logo-emblem" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="#0d1f42" stroke="#c8a84b" stroke-width="1.5"/>
-      <polygon points="20,7 33,14 33,26 20,33 7,26 7,14" fill="none" stroke="#c8a84b" stroke-width="0.7" opacity="0.45"/>
-      <text x="20" y="24" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#c8a84b">GN</text>
-    </svg>
-    <div class="logo-text">
-      <span class="title">S.R.T.C.</span>
-      <span class="subtitle">SYSTÈME RADIO TACTIQUE CONNECTÉ · v3.1.4</span>
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="header-top">
+      <div class="republic-block">
+        <!-- Blason simplifié -->
+        <svg class="emblem" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="26" cy="26" rx="24" ry="24" fill="#1a2540" stroke="#8a6d20" stroke-width="1.5"/>
+          <ellipse cx="26" cy="26" rx="20" ry="20" fill="none" stroke="#8a6d20" stroke-width="0.6" opacity="0.5"/>
+          <!-- Fasces stylisées -->
+          <rect x="22" y="14" width="3" height="26" rx="1" fill="#8a6d20" opacity="0.9"/>
+          <rect x="19" y="16" width="3" height="22" rx="1" fill="#8a6d20" opacity="0.6"/>
+          <rect x="25" y="16" width="3" height="22" rx="1" fill="#8a6d20" opacity="0.6"/>
+          <!-- Hache -->
+          <path d="M22 14 L18 10 L28 14 L22 14Z" fill="#8a6d20"/>
+          <!-- RF -->
+          <text x="26" y="45" text-anchor="middle" font-family="serif" font-size="7" font-weight="bold" fill="#d4c9a8" letter-spacing="2">GN</text>
+        </svg>
+        <div class="org-title">
+          <div class="rep">République Française</div>
+          <div class="main">GENDARMERIE NATIONALE</div>
+          <div class="sub">Direction Générale — Section Transmissions</div>
+        </div>
+      </div>
+      <div class="doc-ref">
+        <div>Réf. : SRTC/TN/2024</div>
+        <div class="ref-num" id="session-ref">—</div>
+        <div style="margin-top:6px"><div class="classif-stamp">CONFIDENTIEL</div></div>
+      </div>
+    </div>
+
+    <div class="doc-title-bar">
+      <h1>Système Radio Tactique Connecté</h1>
+      <div class="subtitle">RÉSEAU PUSH-TO-TALK · CHIFFREMENT P2P · USAGE RESTREINT</div>
     </div>
   </div>
-  <div class="topbar-right">
-    <div class="sys-info">
-      <div>PROTOCOLE : WebRTC/TLS · AES-256</div>
-      <div>ÉTAT RÉSEAU : <span class="live">OPÉRATIONNEL</span></div>
-    </div>
-    <div id="clock">--:--:--</div>
-  </div>
-</header>
 
-<main class="main">
+  <!-- BODY -->
+  <div class="doc-body">
 
-  <!-- SETUP -->
-  <div id="setup-section">
-    <div class="section-header">
-      <span class="label">◈ INITIALISATION DE SESSION</span>
-      <div class="line"></div>
-    </div>
+    <!-- ===== SETUP ===== -->
+    <div id="setup-section">
 
-    <div class="panel">
-      <div class="corner tl"></div><div class="corner tr"></div>
-      <div class="corner bl"></div><div class="corner br"></div>
-      <div class="panel-body">
-        <div class="tab-row">
-          <button class="tab active" onclick="setTab('host')">📡 &nbsp;COMMANDANT DE RÉSEAU</button>
-          <button class="tab" onclick="setTab('join')">📻 &nbsp;AGENT RÉCEPTEUR</button>
+      <div class="section">
+        <div class="section-title">I. — Initialisation du canal</div>
+
+        <div class="mode-select">
+          <button class="mode-btn active" onclick="setTab('host')">📡 Créer un canal</button>
+          <button class="mode-btn" onclick="setTab('join')">📻 Rejoindre un canal</button>
         </div>
 
         <div id="host-panel">
-          <div class="field-label">IDENTIFIANT DE CANAL</div>
-          <input id="host-room-input" type="text" placeholder="ex : ALPHA-7 / BRAVO-2 / OPS-NORD" maxlength="24" />
-          <button class="btn-primary" onclick="startHost()"><span>▶ &nbsp;OUVRIR LE CANAL SÉCURISÉ</span></button>
+          <div class="field">
+            <label>Désignation du canal :</label>
+            <input id="host-room-input" type="text" placeholder="ex : ALPHA-7, BRAVO-2, OPS-NORD..." maxlength="24"/>
+          </div>
+          <button class="btn" onclick="startHost()">▶ Ouvrir le canal</button>
         </div>
 
         <div id="join-panel" style="display:none">
-          <div class="field-label">CODE D'ACCÈS CANAL</div>
-          <input id="join-room-input" type="text" placeholder="code transmis par le commandant" maxlength="24" />
-          <button class="btn-primary" onclick="startJoin()"><span>▶ &nbsp;REJOINDRE LE CANAL</span></button>
+          <div class="field">
+            <label>Code d'accès du canal :</label>
+            <input id="join-room-input" type="text" placeholder="code fourni par le responsable canal..." maxlength="24"/>
+          </div>
+          <div class="field">
+            <label>Votre matricule / indicatif :</label>
+            <input id="callsign-input" type="text" placeholder="ex : ADJ MARTIN, GEND-42..." maxlength="20"/>
+          </div>
+          <button class="btn" onclick="startJoin()">▶ Rejoindre le canal</button>
         </div>
 
-        <div class="error-box" id="error-msg"></div>
+        <div class="error" id="error-msg"></div>
       </div>
-    </div>
 
-    <div class="panel">
-      <div class="corner tl"></div><div class="corner tr"></div>
-      <div class="corner bl"></div><div class="corner br"></div>
-      <div class="panel-body">
-        <div class="section-header" style="margin-bottom:14px">
-          <span class="label">◈ DIAGNOSTICS SYSTÈME</span>
-          <div class="line"></div>
-        </div>
-        <div class="metrics">
-          <div class="metric">
-            <div class="m-val">P2P</div>
-            <div class="m-lbl">PROTOCOLE</div>
-          </div>
-          <div class="metric">
-            <div class="m-val" style="color:var(--green-ok)">AES</div>
-            <div class="m-lbl">CHIFFREMENT</div>
-          </div>
-          <div class="metric">
-            <div class="m-val">OPUS</div>
-            <div class="m-lbl">CODEC AUDIO</div>
-          </div>
-        </div>
+      <hr class="double"/>
+
+      <div class="section">
+        <div class="section-title">II. — État des systèmes</div>
+        <table class="status-table">
+          <tr><td>Protocole</td><td>WebRTC / P2P direct</td></tr>
+          <tr><td>Chiffrement</td><td><span class="pill green">DTLS-SRTP · AES-256</span></td></tr>
+          <tr><td>Codec audio</td><td>OPUS 48kHz</td></tr>
+          <tr><td>Infrastructure</td><td>Aucun serveur central</td></tr>
+        </table>
       </div>
-    </div>
-  </div>
 
-  <!-- OPERATIONAL -->
-  <div id="op-section">
-    <div class="section-header">
-      <span class="label">◈ CANAL OPÉRATIONNEL ACTIF</span>
-      <div class="line"></div>
     </div>
 
-    <div class="panel">
-      <div class="corner tl"></div><div class="corner tr"></div>
-      <div class="corner bl"></div><div class="corner br"></div>
-      <div class="panel-body">
-        <div class="op-grid">
-          <div class="op-id-block">
-            <div class="lbl">IDENTIFIANT CANAL</div>
-            <div class="val" id="room-display">—</div>
-            <button class="copy-btn" onclick="copyRoom()">⧉ COPIER LE CODE</button>
-          </div>
-          <div class="mode-badge commandant" id="mode-badge">—</div>
-          <div class="op-id-block" style="text-align:right">
-            <div class="lbl">AGENTS CONNECTÉS</div>
-            <div class="val" id="peer-count">0</div>
-            <div class="lbl" style="margin-top:2px">UNITÉ(S) EN LIGNE</div>
-          </div>
-        </div>
-        <div class="status-strip" id="status-bar">
-          <div class="status-dot"></div>
-          <span id="status-text">INITIALISATION...</span>
-          <div style="flex:1"></div>
-          <span style="opacity:0.35" id="session-id"></span>
-        </div>
+    <!-- ===== OPERATIONAL ===== -->
+    <div id="op-section">
+
+      <div class="section">
+        <div class="section-title">I. — Identification du canal</div>
+        <table class="status-table">
+          <tr>
+            <td>Canal actif</td>
+            <td><strong id="room-display" style="font-family:'VT323',monospace;font-size:1.1rem;letter-spacing:.1em">—</strong></td>
+          </tr>
+          <tr>
+            <td>Votre indicatif</td>
+            <td id="my-callsign-display">—</td>
+          </tr>
+          <tr>
+            <td>Unités connectées</td>
+            <td><span id="peer-count">0</span> unité(s)</td>
+          </tr>
+          <tr>
+            <td>Code d'accès</td>
+            <td>
+              <span id="share-code" style="font-family:'VT323',monospace;font-size:1rem">—</span>
+              &nbsp;<button onclick="copyRoom()" style="font-size:0.6rem;padding:1px 6px;border:1px solid var(--border);background:var(--paper2);cursor:pointer;font-family:'Courier Prime',monospace;letter-spacing:.08em">COPIER</button>
+            </td>
+          </tr>
+          <tr>
+            <td>État liaison</td>
+            <td id="status-cell"><span class="pill navy">INITIALISATION</span></td>
+          </tr>
+        </table>
       </div>
-    </div>
 
-    <!-- HOST PTT -->
-    <div class="panel" id="host-ptt" style="display:none">
-      <div class="corner tl"></div><div class="corner tr"></div>
-      <div class="corner bl"></div><div class="corner br"></div>
-      <div class="panel-body">
-        <div class="section-header" style="margin-bottom:0">
-          <span class="label">◈ CONTRÔLE DE TRANSMISSION</span>
-          <div class="line"></div>
-        </div>
-        <div class="ptt-container">
+      <hr class="double"/>
+
+      <div class="section">
+        <div class="section-title">II. — Contrôle de transmission</div>
+
+        <div class="ptt-wrap">
+          <!-- Réception indicator -->
+          <div class="reception-block" id="rx-indicator">
+            <div class="dot"></div>
+            <span id="rx-text">EN VEILLE — AUCUNE TRANSMISSION EN COURS</span>
+          </div>
+
+          <!-- PTT Button -->
           <button id="ptt-btn"
             onmousedown="startTalking()" onmouseup="stopTalking()"
             ontouchstart="startTalking(event)" ontouchend="stopTalking(event)">
-            <div class="ptt-icon">🎙️</div>
-            <div class="ptt-text" id="ptt-text">APPUYEZ<br>POUR ÉMETTRE</div>
+            <div class="ptt-mic">🎙️</div>
+            <div class="ptt-label" id="ptt-label">APPUYER<br>POUR PARLER</div>
           </button>
-          <div class="ptt-hint">
-            MAINTENIR POUR TRANSMETTRE · RELÂCHER POUR COUPER<br>
-            <span style="color:var(--gold);opacity:0.65">RACCOURCI CLAVIER : [ESPACE]</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- LISTENER -->
-    <div class="panel" id="listener-panel" style="display:none">
-      <div class="corner tl"></div><div class="corner tr"></div>
-      <div class="corner bl"></div><div class="corner br"></div>
-      <div class="panel-body">
-        <div class="section-header" style="margin-bottom:0">
-          <span class="label">◈ MODULE DE RÉCEPTION</span>
-          <div class="line"></div>
-        </div>
-        <div class="agent-reception">
-          <div class="signal-indicator" id="signal-indicator">
-            <div class="signal-bars">
-              <div class="bar"></div><div class="bar"></div>
-              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            </div>
-            <div class="signal-text" id="signal-text">EN ATTENTE DE TRANSMISSION...</div>
-          </div>
           <div class="ptt-hint">
-            MODE RÉCEPTION PASSIVE · AUCUNE ACTION REQUISE<br>
-            <span style="color:var(--gold);opacity:0.65">L'AUDIO EST DIFFUSÉ AUTOMATIQUEMENT</span>
+            Maintenir appuyé pour émettre — relâcher pour couper<br>
+            Raccourci clavier : <strong>[BARRE ESPACE]</strong>
           </div>
         </div>
       </div>
+
+      <hr class="double"/>
+
+      <div class="section">
+        <div class="section-title">III. — Unités sur le canal</div>
+        <ul id="users-list">
+          <li style="color:var(--ink-fade);font-size:.72rem;font-family:'Courier Prime',monospace">Aucune unité connectée pour l'instant...</li>
+        </ul>
+      </div>
+
     </div>
 
   </div>
-</main>
 
-<footer>
-  <span>GENDARMERIE NATIONALE · DIRECTION GÉNÉRALE · SYSTÈME INTERNE</span>
-  <div class="enc-badge">🔒 CANAL CHIFFRÉ · P2P WEBRTC</div>
-  <span>RÉF : SRTC-2024-FR-8812</span>
-</footer>
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <span>GN/DG/SECT.TRANS — Document à usage interne exclusif</span>
+    <div id="clock">--:--:--</div>
+    <span>Rév. 3.1.4 — 2024</span>
+  </div>
 
-<audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+</div>
+
+<!-- Audio elements container -->
+<div id="audio-container" style="display:none"></div>
 
 <script>
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent =
-      String(now.getHours()).padStart(2,'0') + ':' +
-      String(now.getMinutes()).padStart(2,'0') + ':' +
-      String(now.getSeconds()).padStart(2,'0');
+// =============================================
+// CLOCK
+// =============================================
+function updateClock() {
+  const n = new Date();
+  const pad = x => String(x).padStart(2,'0');
+  document.getElementById('clock').textContent = pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// =============================================
+// STATE
+// =============================================
+let peer        = null;
+let myCallsign  = '';
+let roomId      = '';
+let myPeerId    = '';
+let isHost      = false;
+
+// Mesh : map peerId => { conn (DataConnection), call (MediaCall), callsign, speaking }
+const meshPeers = {};
+
+// Our mic stream
+let micStream = null;
+
+// Session ref
+const sessionRef = 'SID-' + Math.random().toString(36).substr(2,8).toUpperCase();
+document.getElementById('session-ref').textContent = sessionRef;
+
+// =============================================
+// TAB
+// =============================================
+function setTab(t) {
+  isHost = t === 'host';
+  document.querySelectorAll('.mode-btn').forEach((el,i) =>
+    el.classList.toggle('active', (i===0&&t==='host')||(i===1&&t==='join')));
+  document.getElementById('host-panel').style.display = t==='host'?'block':'none';
+  document.getElementById('join-panel').style.display = t==='join'?'block':'none';
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+}
+
+function setStatus(text, cls='') {
+  const pills = { ok:'green', wait:'navy', tx:'red', err:'red' };
+  document.getElementById('status-cell').innerHTML =
+    `<span class="pill ${pills[cls]||'navy'}">${text}</span>`;
+}
+
+function updatePeerCount() {
+  document.getElementById('peer-count').textContent = Object.keys(meshPeers).length;
+  renderUsersList();
+}
+
+function renderUsersList() {
+  const ul = document.getElementById('users-list');
+  const entries = Object.entries(meshPeers);
+  if (entries.length === 0) {
+    ul.innerHTML = '<li style="color:var(--ink-fade);font-size:.72rem;font-family:\'Courier Prime\',monospace">Aucune unité connectée pour l\'instant...</li>';
+    return;
   }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  let peer = null, mode = 'host', roomId = '';
-  let connections = [], activeCalls = [], hostMediaStream = null;
-  const sessionId = 'SID-' + Math.random().toString(36).substr(2,8).toUpperCase();
-
-  function setTab(t) {
-    mode = t;
-    document.querySelectorAll('.tab').forEach((el,i) =>
-      el.classList.toggle('active', (i===0&&t==='host')||(i===1&&t==='join')));
-    document.getElementById('host-panel').style.display = t==='host'?'block':'none';
-    document.getElementById('join-panel').style.display = t==='join'?'block':'none';
+  ul.innerHTML = '';
+  // Me first
+  const meItem = document.createElement('li');
+  meItem.id = 'user-me';
+  meItem.innerHTML = `<span>▶ ${escHtml(myCallsign)} <span style="font-size:.65rem;color:var(--ink-fade)">(vous)</span></span><span class="badge pill navy">EN LIGNE</span>`;
+  ul.appendChild(meItem);
+  for (const [pid, info] of entries) {
+    const li = document.createElement('li');
+    li.id = 'user-' + pid;
+    li.className = info.speaking ? 'speaking' : '';
+    const badge = info.speaking
+      ? '<span class="badge">● PARLE</span>'
+      : '<span class="badge pill navy">EN LIGNE</span>';
+    li.innerHTML = `<span>${escHtml(info.callsign||pid.substr(0,8))}</span>${badge}`;
+    ul.appendChild(li);
   }
+}
 
-  async function startHost() {
-    let raw = document.getElementById('host-room-input').value.trim().replace(/\s+/g,'-')||'';
-    roomId = raw ? 'srtc-'+raw : 'srtc-'+Math.random().toString(36).substr(2,6).toUpperCase();
-    try {
-      hostMediaStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
-      hostMediaStream.getAudioTracks().forEach(t=>t.enabled=false);
-    } catch(e) { showError('ACCÈS MICROPHONE REFUSÉ : '+e.message.toUpperCase()); return; }
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
-    peer = new Peer(roomId, {debug:0});
-    peer.on('open', ()=>switchToOps('host'));
-    peer.on('connection', conn=>{
-      connections.push(conn);
-      updatePeerCount();
-      conn.on('close',()=>{connections=connections.filter(c=>c!==conn);updatePeerCount();});
-    });
-    peer.on('call', call=>{
-      call.answer(hostMediaStream);
-      activeCalls.push(call);
-      call.on('close',()=>{activeCalls=activeCalls.filter(c=>c!==call);});
-    });
-    peer.on('error', e=>showError('ERREUR RÉSEAU : '+e.message.toUpperCase()));
-  }
+function copyRoom() {
+  const code = roomId.replace('srtc-','');
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = event.target;
+    const old = btn.textContent;
+    btn.textContent = 'COPIÉ !';
+    setTimeout(()=>btn.textContent=old, 2000);
+  });
+}
 
-  function startJoin() {
-    const code = document.getElementById('join-room-input').value.trim();
-    if (!code) { showError("CODE D'ACCÈS REQUIS"); return; }
-    roomId = code.startsWith('srtc-') ? code : 'srtc-'+code;
-    peer = new Peer(undefined, {debug:0});
-    peer.on('open', ()=>{
-      const call = peer.call(roomId, getDummyStream());
-      call.on('stream', remoteStream=>{
-        const a=document.getElementById('remote-audio');
-        a.srcObject=remoteStream; a.play().catch(()=>{});
-        switchToOps('listener');
-        setReceiving(true);
-      });
-      call.on('close',()=>setReceiving(false));
-      call.on('error',()=>showError('CANAL INTROUVABLE — VÉRIFIEZ LE CODE'));
-      setTimeout(()=>{ if(document.getElementById('setup-section').style.display!=='none') showError('DÉLAI DÉPASSÉ — CANAL INTROUVABLE'); },9000);
-    });
-    peer.on('error', e=>{
-      if(e.type==='peer-unavailable') showError('CANAL SÉCURISÉ INTROUVABLE — CODE INVALIDE');
-      else showError('ERREUR : '+e.message.toUpperCase());
-    });
-  }
+// =============================================
+// MIC
+// =============================================
+async function getMic() {
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  // Start muted
+  micStream.getAudioTracks().forEach(t => t.enabled = false);
+  return micStream;
+}
 
-  function getDummyStream() {
-    return new AudioContext().createMediaStreamDestination().stream;
-  }
+function getSilentStream() {
+  const ctx = new AudioContext();
+  return ctx.createMediaStreamDestination().stream;
+}
 
-  function startTalking(e) {
-    if(e) e.preventDefault();
-    if(!hostMediaStream) return;
-    hostMediaStream.getAudioTracks().forEach(t=>t.enabled=true);
-    document.getElementById('ptt-btn').classList.add('tx');
-    document.getElementById('ptt-text').innerHTML='TRANSMISSION<br>EN COURS';
-    setStatus('tx','ÉMISSION EN COURS — CANAL ACTIF');
-  }
+// =============================================
+// SWITCH TO OPS
+// =============================================
+function switchToOps() {
+  document.getElementById('setup-section').style.display = 'none';
+  document.getElementById('op-section').style.display   = 'block';
+  document.getElementById('room-display').textContent   = roomId.replace('srtc-','').toUpperCase();
+  document.getElementById('share-code').textContent     = roomId.replace('srtc-','').toUpperCase();
+  document.getElementById('my-callsign-display').textContent = myCallsign;
+  setStatus('CANAL ACTIF — EN VEILLE', 'ok');
+  updatePeerCount();
+}
 
-  function stopTalking(e) {
-    if(e) e.preventDefault();
-    if(!hostMediaStream) return;
-    hostMediaStream.getAudioTracks().forEach(t=>t.enabled=false);
-    document.getElementById('ptt-btn').classList.remove('tx');
-    document.getElementById('ptt-text').innerHTML='APPUYEZ<br>POUR ÉMETTRE';
-    setStatus('ok','CANAL ACTIF — EN ATTENTE DE TRANSMISSION');
-  }
+// =============================================
+// DATA PROTOCOL — messages échangés
+// On utilise des DataConnections pour signaler
+// qui parle, pour échanger les listes de peers,
+// et pour faire les introductions.
+//
+// Messages :
+//   { type: 'hello', callsign, peerId }
+//   { type: 'peer-list', peers: [{peerId, callsign}] }
+//   { type: 'speaking', speaking: bool }
+// =============================================
 
-  function switchToOps(m) {
-    document.getElementById('setup-section').style.display='none';
-    document.getElementById('op-section').style.display='block';
-    document.getElementById('room-display').textContent=roomId.replace('srtc-','').toUpperCase();
-    document.getElementById('session-id').textContent=sessionId;
-    if(m==='host') {
-      document.getElementById('mode-badge').textContent='COMMANDANT';
-      document.getElementById('mode-badge').className='mode-badge commandant';
-      document.getElementById('host-ptt').style.display='block';
-      setStatus('ok',"CANAL OUVERT — EN ATTENTE D'AGENTS");
-    } else {
-      document.getElementById('mode-badge').textContent='AGENT RÉCEPTEUR';
-      document.getElementById('mode-badge').className='mode-badge agent';
-      document.getElementById('listener-panel').style.display='block';
-      setStatus('ok','CONNECTÉ AU CANAL — RÉCEPTION ACTIVE');
+function sendToAll(data) {
+  for (const [pid, info] of Object.entries(meshPeers)) {
+    if (info.conn && info.conn.open) {
+      try { info.conn.send(data); } catch(e) {}
     }
   }
+}
 
-  function setReceiving(active) {
-    document.getElementById('signal-indicator').classList.toggle('receiving',active);
-    document.getElementById('signal-text').textContent=active?'SIGNAL REÇU — TRANSMISSION EN COURS':'EN ATTENTE DE TRANSMISSION...';
+function handleDataMsg(fromPeerId, msg) {
+  if (!meshPeers[fromPeerId]) return;
+  if (msg.type === 'hello') {
+    meshPeers[fromPeerId].callsign = msg.callsign;
+    renderUsersList();
   }
-
-  function updatePeerCount() { document.getElementById('peer-count').textContent=connections.length; }
-
-  function setStatus(cls,text) {
-    document.getElementById('status-bar').className='status-strip '+cls;
-    document.getElementById('status-text').textContent=text;
+  if (msg.type === 'speaking') {
+    meshPeers[fromPeerId].speaking = msg.speaking;
+    updateRxIndicator();
+    renderUsersList();
   }
-
-  function showError(msg) {
-    const el=document.getElementById('error-msg');
-    el.textContent='⚠ '+msg; el.style.display='block';
+  // peer-list : l'hôte nous envoie la liste des autres pairs pour qu'on se connecte
+  if (msg.type === 'peer-list') {
+    for (const p of msg.peers) {
+      if (p.peerId !== myPeerId && !meshPeers[p.peerId]) {
+        connectToPeer(p.peerId, p.callsign);
+      }
+    }
   }
+}
 
-  function copyRoom() {
-    const code=roomId.replace('srtc-','');
-    navigator.clipboard.writeText(code).then(()=>{
-      const b=document.querySelector('.copy-btn');
-      b.textContent='✓ CODE COPIÉ';
-      setTimeout(()=>b.textContent='⧉ COPIER LE CODE',2000);
-    });
+function updateRxIndicator() {
+  const anyoneSpeaking = Object.values(meshPeers).some(p => p.speaking);
+  const el = document.getElementById('rx-indicator');
+  const txt = document.getElementById('rx-text');
+  if (anyoneSpeaking) {
+    const who = Object.values(meshPeers).filter(p=>p.speaking).map(p=>p.callsign||'???').join(', ');
+    el.className = 'reception-block active';
+    txt.textContent = '● RÉCEPTION — ' + who.toUpperCase() + ' EN COURS DE TRANSMISSION';
+  } else {
+    el.className = 'reception-block';
+    txt.textContent = 'EN VEILLE — AUCUNE TRANSMISSION EN COURS';
   }
+}
 
-  document.addEventListener('keydown', e=>{
-    if(e.code==='Space' && document.getElementById('host-ptt').style.display!=='none') {
-      e.preventDefault();
-      if(!e.repeat) startTalking();
+// =============================================
+// CONNECT TO A PEER (bidirectional)
+// =============================================
+function connectToPeer(peerId, knownCallsign) {
+  if (meshPeers[peerId]) return; // déjà connecté
+  meshPeers[peerId] = { conn: null, call: null, callsign: knownCallsign||peerId.substr(0,8), speaking: false };
+
+  // Data connection
+  const conn = peer.connect(peerId, { reliable: true });
+  meshPeers[peerId].conn = conn;
+
+  conn.on('open', () => {
+    conn.send({ type: 'hello', callsign: myCallsign, peerId: myPeerId });
+    // Si hôte : on envoie la liste de tous les pairs au nouveau
+    if (isHost) {
+      const peerList = Object.entries(meshPeers)
+        .filter(([pid]) => pid !== peerId)
+        .map(([pid, info]) => ({ peerId: pid, callsign: info.callsign }));
+      conn.send({ type: 'peer-list', peers: peerList });
     }
   });
-  document.addEventListener('keyup', e=>{
-    if(e.code==='Space' && document.getElementById('host-ptt').style.display!=='none') stopTalking();
+
+  conn.on('data', msg => handleDataMsg(peerId, msg));
+  conn.on('close', () => removePeer(peerId));
+  conn.on('error', () => removePeer(peerId));
+
+  // Media call — on envoie notre flux mic, on reçoit le leur
+  callMedia(peerId);
+
+  updatePeerCount();
+}
+
+function callMedia(peerId) {
+  const stream = micStream || getSilentStream();
+  const call = peer.call(peerId, stream);
+  if (!meshPeers[peerId]) return;
+  meshPeers[peerId].call = call;
+
+  call.on('stream', remoteStream => {
+    addAudioElement(peerId, remoteStream);
   });
+  call.on('close', () => { removeAudioElement(peerId); });
+  call.on('error', () => { removeAudioElement(peerId); });
+}
+
+function removePeer(peerId) {
+  if (meshPeers[peerId]) {
+    removeAudioElement(peerId);
+    delete meshPeers[peerId];
+    updatePeerCount();
+    updateRxIndicator();
+  }
+}
+
+function addAudioElement(peerId, stream) {
+  removeAudioElement(peerId);
+  const audio = document.createElement('audio');
+  audio.id = 'audio-' + peerId;
+  audio.autoplay = true;
+  audio.srcObject = stream;
+  document.getElementById('audio-container').appendChild(audio);
+  audio.play().catch(()=>{});
+}
+
+function removeAudioElement(peerId) {
+  const existing = document.getElementById('audio-' + peerId);
+  if (existing) existing.remove();
+}
+
+// =============================================
+// HOST
+// =============================================
+async function startHost() {
+  let raw = document.getElementById('host-room-input').value.trim().replace(/\s+/g,'-') || '';
+  roomId = raw ? 'srtc-'+raw : 'srtc-'+Math.random().toString(36).substr(2,6).toUpperCase();
+  myCallsign = 'COMMANDANT';
+  isHost = true;
+
+  try { await getMic(); }
+  catch(e) { showError('Accès microphone refusé : '+e.message); return; }
+
+  peer = new Peer(roomId, { debug: 0 });
+  peer.on('open', pid => {
+    myPeerId = pid;
+    switchToOps();
+  });
+
+  // Quand un pair nous appelle en media
+  peer.on('call', call => {
+    const pid = call.peer;
+    if (!meshPeers[pid]) {
+      meshPeers[pid] = { conn: null, call: null, callsign: pid.substr(0,8), speaking: false };
+    }
+    meshPeers[pid].call = call;
+    call.answer(micStream);
+    call.on('stream', remoteStream => addAudioElement(pid, remoteStream));
+    call.on('close', ()=>{ removeAudioElement(pid); });
+    updatePeerCount();
+  });
+
+  // Quand un pair ouvre une data connexion
+  peer.on('connection', conn => {
+    const pid = conn.peer;
+    if (!meshPeers[pid]) {
+      meshPeers[pid] = { conn: null, call: null, callsign: pid.substr(0,8), speaking: false };
+    }
+    meshPeers[pid].conn = conn;
+
+    conn.on('open', () => {
+      conn.send({ type: 'hello', callsign: myCallsign, peerId: myPeerId });
+      // Envoyer liste de pairs existants
+      const peerList = Object.entries(meshPeers)
+        .filter(([p]) => p !== pid)
+        .map(([p,info]) => ({ peerId: p, callsign: info.callsign }));
+      if (peerList.length > 0) conn.send({ type: 'peer-list', peers: peerList });
+      // Notifier tous les autres qu'un nouveau est arrivé
+      sendToAll({ type: 'peer-list', peers: [{ peerId: pid, callsign: meshPeers[pid].callsign }] });
+    });
+    conn.on('data', msg => handleDataMsg(pid, msg));
+    conn.on('close', ()=>removePeer(pid));
+    conn.on('error', ()=>removePeer(pid));
+    updatePeerCount();
+  });
+
+  peer.on('error', e => showError('Erreur réseau : '+e.message));
+}
+
+// =============================================
+// JOIN
+// =============================================
+async function startJoin() {
+  const code = document.getElementById('join-room-input').value.trim();
+  const cs   = document.getElementById('callsign-input').value.trim();
+  if (!code) { showError("Code d'accès requis"); return; }
+  myCallsign = cs || 'AGENT-' + Math.random().toString(36).substr(2,4).toUpperCase();
+  roomId = code.startsWith('srtc-') ? code : 'srtc-'+code;
+  isHost = false;
+
+  try { await getMic(); }
+  catch(e) { showError('Accès microphone refusé : '+e.message); return; }
+
+  peer = new Peer(undefined, { debug: 0 });
+
+  peer.on('open', pid => {
+    myPeerId = pid;
+
+    // Se connecter à l'hôte
+    meshPeers[roomId] = { conn: null, call: null, callsign: 'COMMANDANT', speaking: false };
+
+    // Data conn vers l'hôte
+    const conn = peer.connect(roomId, { reliable: true });
+    meshPeers[roomId].conn = conn;
+
+    conn.on('open', () => {
+      conn.send({ type: 'hello', callsign: myCallsign, peerId: myPeerId });
+      switchToOps();
+    });
+    conn.on('data', msg => handleDataMsg(roomId, msg));
+    conn.on('close', ()=>removePeer(roomId));
+    conn.on('error', ()=>{ showError('Connexion perdue avec le canal'); });
+
+    // Appel média vers l'hôte
+    const call = peer.call(roomId, micStream);
+    meshPeers[roomId].call = call;
+    call.on('stream', remoteStream => addAudioElement(roomId, remoteStream));
+    call.on('close', ()=>removeAudioElement(roomId));
+    call.on('error', ()=>{});
+
+    setTimeout(()=>{
+      if(document.getElementById('setup-section').style.display!=='none')
+        showError('Canal introuvable — vérifiez le code d\'accès.');
+    }, 9000);
+  });
+
+  // Recevoir des appels des autres pairs (mesh)
+  peer.on('call', call => {
+    const pid = call.peer;
+    if (!meshPeers[pid]) {
+      meshPeers[pid] = { conn: null, call: null, callsign: pid.substr(0,8), speaking: false };
+    }
+    meshPeers[pid].call = call;
+    call.answer(micStream);
+    call.on('stream', remoteStream => addAudioElement(pid, remoteStream));
+    call.on('close', ()=>removeAudioElement(pid));
+    updatePeerCount();
+  });
+
+  // Recevoir des data connexions des autres pairs
+  peer.on('connection', conn => {
+    const pid = conn.peer;
+    if (!meshPeers[pid]) {
+      meshPeers[pid] = { conn: null, call: null, callsign: pid.substr(0,8), speaking: false };
+    }
+    meshPeers[pid].conn = conn;
+    conn.on('open', ()=>{ conn.send({ type:'hello', callsign: myCallsign, peerId: myPeerId }); });
+    conn.on('data', msg=>handleDataMsg(pid, msg));
+    conn.on('close', ()=>removePeer(pid));
+    conn.on('error', ()=>removePeer(pid));
+    updatePeerCount();
+  });
+
+  peer.on('error', e => {
+    if(e.type==='peer-unavailable') showError('Canal introuvable — code invalide ou canal fermé.');
+    else showError('Erreur : '+e.message);
+  });
+}
+
+// =============================================
+// PTT
+// =============================================
+function startTalking(e) {
+  if(e) e.preventDefault();
+  if(!micStream) return;
+  micStream.getAudioTracks().forEach(t=>t.enabled=true);
+  document.getElementById('ptt-btn').classList.add('tx');
+  document.getElementById('ptt-label').innerHTML='EN COURS<br>D\'ÉMISSION';
+  const el = document.getElementById('rx-indicator');
+  el.className = 'reception-block tx-active';
+  document.getElementById('rx-text').textContent = '● ÉMISSION EN COURS — VOUS TRANSMETTEZ';
+  setStatus('ÉMISSION EN COURS', 'tx');
+  sendToAll({ type: 'speaking', speaking: true });
+  // Me marquer dans la liste
+  const me = document.getElementById('user-me');
+  if(me) { me.className='speaking'; me.querySelector('.badge').textContent='● PARLE'; }
+}
+
+function stopTalking(e) {
+  if(e) e.preventDefault();
+  if(!micStream) return;
+  micStream.getAudioTracks().forEach(t=>t.enabled=false);
+  document.getElementById('ptt-btn').classList.remove('tx');
+  document.getElementById('ptt-label').innerHTML='APPUYER<br>POUR PARLER';
+  setStatus('CANAL ACTIF — EN VEILLE','ok');
+  sendToAll({ type: 'speaking', speaking: false });
+  const me = document.getElementById('user-me');
+  if(me) { me.className=''; me.querySelector('.badge').textContent=''; me.querySelector('.badge').className='badge pill navy'; me.querySelector('.badge').textContent='EN LIGNE'; }
+  updateRxIndicator();
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if(e.code==='Space' && document.getElementById('op-section').style.display!=='none') {
+    e.preventDefault();
+    if(!e.repeat) startTalking();
+  }
+});
+document.addEventListener('keyup', e => {
+  if(e.code==='Space' && document.getElementById('op-section').style.display!=='none') stopTalking();
+});
 </script>
 </body>
 </html>
