@@ -3,17 +3,15 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SRTC — Radio Tactique</title>
+  <title>Radio Tactique</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Courier Prime', monospace;
-      background: #1c1c1c;
-      color: #e0e0d0;
+      font-family: Arial, sans-serif;
+      background: #0d1b2e;
+      color: #cce0ff;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -21,162 +19,242 @@
       padding: 20px;
     }
 
-    .app { width: 100%; max-width: 380px; }
+    .app { width: 100%; max-width: 360px; }
 
-    .header {
-      text-align: center;
-      border: 2px solid #4a6741;
-      padding: 12px;
-      margin-bottom: 24px;
-      background: #0f1a0f;
+    /* Header */
+    .hdr {
+      background: #112240;
+      border: 1px solid #1e4080;
+      border-bottom: 2px solid #2a6fff;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .header h1 { font-size: 0.95rem; letter-spacing: 0.3em; color: #7aaf6a; font-weight: 700; }
-    .header p  { font-size: 0.6rem; color: #4a6741; letter-spacing: 0.2em; margin-top: 3px; }
+    .hdr-icon { font-size: 1.4rem; }
 
-    label {
-      display: block;
-      font-size: 0.65rem;
-      color: #8a8a7a;
-      letter-spacing: 0.15em;
-      margin-bottom: 5px;
+    .hdr-text h1 { font-size: 0.95rem; color: #6ab0ff; font-weight: 700; letter-spacing: 0.05em; }
+    .hdr-text p  { font-size: 0.62rem; color: #3a6090; margin-top: 2px; }
+
+    /* Card */
+    .card {
+      background: #112240;
+      border: 1px solid #1e4080;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      color: #3a6090;
       text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a3060;
     }
+
+    label { display: block; font-size: 0.72rem; color: #7aabdd; margin-bottom: 5px; }
 
     input {
       display: block;
       width: 100%;
-      background: #0f0f0f;
-      border: 1px solid #3a3a2a;
-      color: #e0e0d0;
+      background: #0a1525;
+      border: 1px solid #1e4080;
+      border-radius: 4px;
+      color: #cce0ff;
       padding: 9px 11px;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      margin-bottom: 14px;
+      font-size: 0.9rem;
+      font-family: Arial, sans-serif;
       outline: none;
+      margin-bottom: 12px;
     }
 
-    input:focus { border-color: #7aaf6a; }
-    input::placeholder { color: #3a3a2a; font-size: 0.8rem; }
+    input:focus { border-color: #2a6fff; }
+    input::placeholder { color: #2a4060; }
 
     .btn {
       display: block;
       width: 100%;
       padding: 10px;
-      background: #2a3a28;
-      border: 1px solid #4a6741;
-      color: #7aaf6a;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.8rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
+      background: #1a3f7a;
+      border: 1px solid #2a6fff;
+      border-radius: 4px;
+      color: #6ab0ff;
+      font-size: 0.85rem;
+      font-weight: bold;
       cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.15s;
+      font-family: Arial, sans-serif;
     }
 
-    .btn:hover { background: #354a33; }
+    .btn:hover { background: #204a8a; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .sep { text-align: center; color: #3a3a2a; font-size: 0.65rem; letter-spacing: 0.2em; margin: 12px 0; }
+    .sep { text-align: center; font-size: 0.7rem; color: #2a4060; margin: 6px 0 14px; }
 
-    .msg {
-      margin-top: 12px;
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
-      min-height: 1.2em;
-      color: #8a8a7a;
+    /* Status */
+    .status-bar {
+      background: #0a1525;
+      border: 1px solid #1a3060;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      color: #3a6090;
+      margin-top: 10px;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .msg.err { color: #c05050; }
-    .msg.ok  { color: #7aaf6a; }
+
+    .status-bar .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #2a4060;
+      flex-shrink: 0;
+    }
+    .status-bar.ok  .dot { background: #2a9fff; box-shadow: 0 0 5px #2a9fff; }
+    .status-bar.err .dot { background: #c04040; box-shadow: 0 0 5px #c04040; }
+    .status-bar.ok  { color: #6ab0ff; }
+    .status-bar.err { color: #c06060; }
+
+    /* Loading */
+    #screen-loading {
+      display: none;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .loader {
+      width: 36px; height: 36px;
+      border: 3px solid #1e4080;
+      border-top-color: #2a6fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loader-txt { font-size: 0.75rem; color: #3a6090; }
 
     /* PTT screen */
-    #ptt { display: none; }
+    #screen-ptt { display: none; }
 
-    .infobox {
-      border: 1px solid #3a3a2a;
-      padding: 12px;
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
       margin-bottom: 14px;
-      background: #0f0f0f;
     }
 
-    .irow {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      margin-bottom: 5px;
+    .info-cell {
+      background: #0a1525;
+      border: 1px solid #1a3060;
+      border-radius: 4px;
+      padding: 10px;
     }
-    .irow:last-child { margin-bottom: 0; }
-    .irow .k { font-size: 0.6rem; color: #8a8a7a; letter-spacing: 0.12em; text-transform: uppercase; }
-    .irow .v { color: #e0e0d0; letter-spacing: 0.06em; }
-    .irow .v.g { color: #7aaf6a; }
 
-    .cbtn {
-      background: none;
-      border: 1px solid #3a3a2a;
-      color: #8a8a7a;
-      padding: 2px 7px;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-    }
-    .cbtn:hover { border-color: #7aaf6a; color: #7aaf6a; }
+    .info-cell .lbl { font-size: 0.58rem; color: #3a6090; text-transform: uppercase; letter-spacing: 0.12em; }
+    .info-cell .val { font-size: 0.9rem; color: #6ab0ff; margin-top: 3px; font-weight: bold; }
 
+    /* Users */
     .users {
-      border: 1px solid #3a3a2a;
+      background: #0a1525;
+      border: 1px solid #1a3060;
+      border-radius: 4px;
       margin-bottom: 14px;
-      min-height: 36px;
+      overflow: hidden;
     }
 
-    .urow {
-      padding: 6px 11px;
-      font-size: 0.75rem;
-      border-bottom: 1px solid #2a2a1a;
+    .u-title {
+      font-size: 0.62rem;
+      color: #3a6090;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 7px 12px;
+      border-bottom: 1px solid #1a3060;
+      background: #0d1b2e;
+    }
+
+    .u-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      border-bottom: 1px solid #0d1b2e;
     }
-    .urow:last-child { border-bottom: none; }
-    .urow .un { color: #c0c0b0; }
-    .urow .un.me { color: #7aaf6a; }
-    .urow .ub {
-      font-size: 0.58rem;
-      letter-spacing: 0.1em;
-      padding: 1px 5px;
-      border: 1px solid #3a3a2a;
-      color: #8a8a7a;
+
+    .u-row:last-child { border-bottom: none; }
+    .u-name { color: #aaccee; }
+    .u-name.me { color: #6ab0ff; }
+
+    .u-badge {
+      font-size: 0.6rem;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid #1e4080;
+      color: #3a6090;
+      letter-spacing: 0.08em;
     }
-    .urow .ub.sp { border-color: #7aaf6a; color: #7aaf6a; animation: bl .6s infinite; }
-    .urow .ub.tx { border-color: #c05050; color: #c05050; }
+
+    .u-badge.sp {
+      border-color: #2a9fff;
+      color: #2a9fff;
+      animation: bl .7s infinite;
+    }
 
     @keyframes bl { 0%,100%{opacity:1} 50%{opacity:.2} }
 
+    /* PTT button */
     .ptt-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      margin: 8px 0 14px;
+      padding: 10px 0 6px;
     }
+
+    .rx-bar {
+      width: 100%;
+      background: #0a1525;
+      border: 1px solid #1a3060;
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 0.68rem;
+      color: #3a6090;
+      text-align: center;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+
+    .rx-bar.rx { color: #2a9fff; border-color: #2a6fff; background: #0d1e3a; }
+    .rx-bar.tx { color: #ff6060; border-color: #c04040; background: #1e0d0d; }
 
     #ptt-btn {
       width: 130px;
       height: 130px;
       border-radius: 50%;
-      border: 3px solid #4a6741;
-      background: #1a2a18;
-      color: #7aaf6a;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
+      border: 3px solid #1e4080;
+      background: radial-gradient(circle at 40% 35%, #1a3a7a, #0d1b2e);
+      color: #6ab0ff;
+      font-size: 0.7rem;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      letter-spacing: 0.1em;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 7px;
-      box-shadow: 0 4px 0 #0a0a08, inset 0 1px 0 rgba(255,255,255,0.04);
+      gap: 8px;
+      box-shadow: 0 4px 0 #060e1c, inset 0 1px 0 rgba(255,255,255,0.06);
       user-select: none;
       -webkit-user-select: none;
       transition: all 0.08s;
@@ -186,77 +264,118 @@
 
     #ptt-btn.tx {
       transform: translateY(3px);
-      box-shadow: 0 1px 0 #0a0a08;
-      border-color: #c05050;
-      background: #2a1010;
-      color: #c05050;
+      box-shadow: 0 1px 0 #060e1c;
+      border-color: #c04040;
+      background: radial-gradient(circle at 40% 35%, #3a1010, #1a0505);
+      color: #ff8080;
     }
 
-    .rxline {
+    .ptt-hint { font-size: 0.6rem; color: #2a4060; text-align: center; }
+
+    .share-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0a1525;
+      border: 1px solid #1a3060;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+    }
+
+    .share-row .lbl { font-size: 0.62rem; color: #3a6090; letter-spacing: 0.1em; text-transform: uppercase; }
+    .share-row .code { font-size: 0.9rem; color: #6ab0ff; font-weight: bold; letter-spacing: 0.06em; }
+
+    .share-btn {
+      background: #1a3060;
+      border: 1px solid #2a6fff;
+      border-radius: 3px;
+      color: #6ab0ff;
       font-size: 0.62rem;
-      letter-spacing: 0.12em;
-      color: #4a4a3a;
-      text-align: center;
+      padding: 3px 9px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.08em;
     }
-    .rxline.rx { color: #7aaf6a; }
-    .rxline.tx { color: #c05050; }
 
-    .hint { font-size: 0.58rem; color: #3a3a2a; letter-spacing: 0.1em; text-align: center; }
-
-    /* loading */
-    #loading { display: none; text-align: center; padding: 28px 0; }
-    .spin { font-size: 0.72rem; color: #8a8a7a; letter-spacing: 0.15em; }
+    .share-btn:hover { background: #204070; }
   </style>
 </head>
 <body>
 <div class="app">
 
-  <div class="header">
-    <h1>▌SRTC — Radio Tactique</h1>
-    <p>GENDARMERIE NATIONALE · RÉSEAU P2P</p>
+  <div class="hdr">
+    <div class="hdr-icon">📡</div>
+    <div class="hdr-text">
+      <h1>Radio Tactique</h1>
+      <p>GENDARMERIE NATIONALE</p>
+    </div>
   </div>
 
   <!-- SETUP -->
-  <div id="setup">
-    <label>Créer un canal</label>
-    <input id="in-name" type="text" placeholder="nom du canal (ex: ALPHA-7)"/>
-    <button class="btn" id="btn-create" onclick="doCreate()">▶ Créer le canal</button>
+  <div id="screen-setup">
+    <div class="card">
+      <div class="card-title">Créer un canal</div>
+      <label>Nom du canal</label>
+      <input id="in-name" type="text" placeholder="ex : ALPHA-7, BRAVO..."/>
+      <button class="btn" id="btn-create" onclick="doCreate()">Créer</button>
+    </div>
 
     <div class="sep">— ou —</div>
 
-    <label>Rejoindre un canal</label>
-    <input id="in-code"      type="text" placeholder="code du canal"/>
-    <input id="in-callsign"  type="text" placeholder="votre indicatif (ex: ADJ MARTIN)"/>
-    <button class="btn" id="btn-join" onclick="doJoin()">▶ Rejoindre</button>
+    <div class="card">
+      <div class="card-title">Rejoindre un canal</div>
+      <label>Code du canal</label>
+      <input id="in-code" type="text" placeholder="code fourni par le créateur"/>
+      <label>Votre indicatif</label>
+      <input id="in-cs" type="text" placeholder="ex : ADJ MARTIN"/>
+      <button class="btn" id="btn-join" onclick="doJoin()">Rejoindre</button>
+    </div>
 
-    <div class="msg" id="msg"></div>
+    <div class="status-bar" id="status-bar">
+      <div class="dot"></div>
+      <span id="status-txt">Prêt</span>
+    </div>
   </div>
 
   <!-- LOADING -->
-  <div id="loading">
-    <div class="spin" id="loading-txt">Connexion...</div>
+  <div id="screen-loading">
+    <div class="loader"></div>
+    <div class="loader-txt" id="loading-txt">Connexion en cours...</div>
+    <div class="loader-txt" style="margin-top:6px;font-size:0.62rem;color:#2a4060" id="loading-sub"></div>
   </div>
 
   <!-- PTT -->
-  <div id="ptt">
-    <div class="infobox">
-      <div class="irow"><span class="k">Canal</span><span class="v" id="d-canal">—</span></div>
-      <div class="irow"><span class="k">Indicatif</span><span class="v g" id="d-cs">—</span></div>
-      <div class="irow"><span class="k">Unités</span><span class="v" id="d-units">0</span></div>
-      <div class="irow"><span class="k">Partager</span><button class="cbtn" id="cbtn" onclick="copyCode()">COPIER CODE</button></div>
+  <div id="screen-ptt">
+    <div class="info-grid">
+      <div class="info-cell"><div class="lbl">Canal</div><div class="val" id="d-canal">—</div></div>
+      <div class="info-cell"><div class="lbl">Indicatif</div><div class="val" id="d-cs">—</div></div>
     </div>
 
-    <div class="users" id="ulist"></div>
+    <div class="share-row">
+      <div>
+        <div class="lbl">Code à partager</div>
+        <div class="code" id="d-code">—</div>
+      </div>
+      <button class="share-btn" id="sbtn" onclick="copyCode()">Copier</button>
+    </div>
 
-    <div class="ptt-wrap">
-      <div class="rxline" id="rxline">EN VEILLE</div>
-      <button id="ptt-btn"
-        onmousedown="startTx()" onmouseup="stopTx()"
-        ontouchstart="startTx(event)" ontouchend="stopTx(event)">
-        <div class="icon">🎙</div>
-        <div id="ptt-lbl">PARLER</div>
-      </button>
-      <div class="hint">Maintenir · [ESPACE]</div>
+    <div class="users">
+      <div class="u-title">Unités connectées (<span id="d-units">0</span>)</div>
+      <div id="ulist"></div>
+    </div>
+
+    <div class="card" style="padding:14px">
+      <div class="ptt-wrap">
+        <div class="rx-bar" id="rxbar">En veille</div>
+        <button id="ptt-btn"
+          onmousedown="startTx()" onmouseup="stopTx()"
+          ontouchstart="startTx(event)" ontouchend="stopTx(event)">
+          <div class="icon">🎙</div>
+          <div id="ptt-lbl">PARLER</div>
+        </button>
+        <div class="ptt-hint">Maintenir pour émettre · [Espace]</div>
+      </div>
     </div>
   </div>
 
@@ -266,289 +385,269 @@
 <script>
 const $ = id => document.getElementById(id);
 
-let peer       = null;
-let myId       = '';
-let myCallsign = '';
-let roomId     = '';
-let isHost     = false;
-let micStream  = null;
-const peers    = {}; // id -> {conn, call, callsign, speaking}
+let peer, myId='', myCallsign='', roomId='', isHost=false, micStream=null;
+const peers = {};
 
-// ── UI helpers ────────────────────────────────────────────────
-function showMsg(t, cls='') { $('msg').textContent = t; $('msg').className = 'msg ' + cls; }
-function showSetup()   { $('setup').style.display='block'; $('loading').style.display='none'; $('ptt').style.display='none'; }
-function showLoading(t){ $('setup').style.display='none'; $('loading').style.display='block'; $('ptt').style.display='none'; $('loading-txt').textContent = t||'Connexion...'; }
-function showPTT()     { $('setup').style.display='none'; $('loading').style.display='none'; $('ptt').style.display='block'; }
+// ── Screens ───────────────────────────────────────────────────
+function show(name) {
+  ['setup','loading','ptt'].forEach(s => $('screen-'+s).style.display = s===name ? 'block' : 'none');
+}
 
-function setBtns(disabled) {
-  $('btn-create').disabled = disabled;
-  $('btn-join').disabled   = disabled;
+function setStatus(txt, cls='') {
+  $('status-bar').className = 'status-bar ' + cls;
+  $('status-txt').textContent = txt;
+}
+
+function setBtns(on) {
+  $('btn-create').disabled = !on;
+  $('btn-join').disabled   = !on;
+}
+
+function setLoading(txt, sub='') {
+  $('loading-txt').textContent = txt;
+  $('loading-sub').textContent = sub;
+  show('loading');
 }
 
 // ── Audio ─────────────────────────────────────────────────────
 function addAudio(pid, stream) {
-  removeAudio(pid);
-  const a = document.createElement('audio');
-  a.id = 'a-' + pid; a.autoplay = true; a.srcObject = stream;
-  $('audios').appendChild(a);
+  let a = $('a-'+pid);
+  if (!a) { a = document.createElement('audio'); a.id='a-'+pid; a.autoplay=true; $('audios').appendChild(a); }
+  a.srcObject = stream;
   a.play().catch(()=>{});
 }
 function removeAudio(pid) { const e=$('a-'+pid); if(e) e.remove(); }
-function silentStream()   { return new AudioContext().createMediaStreamDestination().stream; }
+function silentStream() { return new AudioContext().createMediaStreamDestination().stream; }
 
-// ── Mic ───────────────────────────────────────────────────────
 async function getMic() {
-  micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-  micStream.getAudioTracks().forEach(t => t.enabled = false);
+  micStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  micStream.getAudioTracks().forEach(t => t.enabled=false);
 }
 
 // ── Render ────────────────────────────────────────────────────
 function render() {
   const ul = $('ulist');
   ul.innerHTML = '';
-  // Me
+
   const me = document.createElement('div');
-  me.className = 'urow';
-  me.innerHTML = `<span class="un me">▶ ${esc(myCallsign)}</span><span class="ub" id="b-me">MOI</span>`;
+  me.className='u-row';
+  me.innerHTML=`<span class="u-name me">${esc(myCallsign)} <span style="font-size:.6rem;color:#2a5080">(moi)</span></span><span class="u-badge" style="color:#2a6fff;border-color:#1e4080">EN LIGNE</span>`;
   ul.appendChild(me);
-  // Others
-  for (const [id, p] of Object.entries(peers)) {
-    const d = document.createElement('div');
-    d.className = 'urow'; d.id = 'r-' + id;
-    d.innerHTML = `<span class="un">${esc(p.callsign)}</span><span class="ub ${p.speaking?'sp':''}">${p.speaking?'● PARLE':'EN LIGNE'}</span>`;
-    ul.appendChild(d);
+
+  for (const [id,p] of Object.entries(peers)) {
+    const row = document.createElement('div');
+    row.className='u-row'; row.id='r-'+id;
+    row.innerHTML=`<span class="u-name">${esc(p.callsign)}</span><span class="u-badge ${p.speaking?'sp':''}">${p.speaking?'● PARLE':'EN LIGNE'}</span>`;
+    ul.appendChild(row);
   }
+
   $('d-units').textContent = Object.keys(peers).length;
   updateRx();
 }
 
 function updateRx() {
-  const sp = Object.values(peers).filter(p => p.speaking);
-  const rx = $('rxline');
-  if (sp.length) {
-    rx.className = 'rxline rx';
-    rx.textContent = '● RÉCEPTION — ' + sp.map(p=>p.callsign).join(', ');
-  } else {
-    rx.className = 'rxline';
-    rx.textContent = 'EN VEILLE';
-  }
+  const sp = Object.values(peers).filter(p=>p.speaking);
+  const rx = $('rxbar');
+  if (sp.length) { rx.className='rx-bar rx'; rx.textContent='● Réception — '+sp.map(p=>p.callsign).join(', '); }
+  else           { rx.className='rx-bar'; rx.textContent='En veille'; }
 }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
 function copyCode() {
-  navigator.clipboard.writeText(roomId.replace('srtc-','')).then(() => {
-    $('cbtn').textContent = 'COPIÉ !';
-    setTimeout(() => $('cbtn').textContent = 'COPIER CODE', 2000);
+  navigator.clipboard.writeText(roomId.replace('rt-','')).then(()=>{
+    $('sbtn').textContent='Copié !';
+    setTimeout(()=>$('sbtn').textContent='Copier',2000);
   });
 }
 
-// ── Data messages ─────────────────────────────────────────────
+// ── Data ──────────────────────────────────────────────────────
 function broadcast(msg) {
   for (const p of Object.values(peers))
-    if (p.conn && p.conn.open) try { p.conn.send(msg); } catch(e) {}
+    if (p.conn?.open) try { p.conn.send(msg); } catch(e) {}
 }
 
 function onData(fromId, msg) {
   if (!peers[fromId]) return;
-  if (msg.type === 'hello') { peers[fromId].callsign = msg.callsign; render(); }
-  if (msg.type === 'speaking') { peers[fromId].speaking = msg.val; render(); }
-  if (msg.type === 'peers') {
-    for (const p of msg.list)
-      if (p.id !== myId && !peers[p.id]) connectOut(p.id, p.callsign);
-  }
+  if (msg.type==='hello')    { peers[fromId].callsign=msg.cs; render(); }
+  if (msg.type==='speaking') { peers[fromId].speaking=msg.val; render(); }
+  if (msg.type==='peers')    { for(const p of msg.list) if(p.id!==myId&&!peers[p.id]) connectOut(p.id,p.cs); }
 }
 
-// ── Connect outgoing to a peer ────────────────────────────────
+// ── Outgoing connection ───────────────────────────────────────
 function connectOut(pid, knownCs) {
   if (peers[pid]) return;
-  peers[pid] = { conn: null, call: null, callsign: knownCs || '???', speaking: false };
+  peers[pid]={conn:null,call:null,callsign:knownCs||'???',speaking:false};
 
-  const conn = peer.connect(pid, { reliable: true, serialization: 'json' });
-  peers[pid].conn = conn;
-  conn.on('open', () => {
-    conn.send({ type: 'hello', callsign: myCallsign });
-    // Tell them about our other peers
-    const list = Object.entries(peers).filter(([id])=>id!==pid).map(([id,p])=>({id,callsign:p.callsign}));
-    if (list.length) conn.send({ type: 'peers', list });
+  const conn = peer.connect(pid,{reliable:true,serialization:'json'});
+  peers[pid].conn=conn;
+  conn.on('open',()=>{
+    conn.send({type:'hello',cs:myCallsign});
+    const list=Object.entries(peers).filter(([id])=>id!==pid).map(([id,p])=>({id,cs:p.callsign}));
+    if(list.length) conn.send({type:'peers',list});
   });
-  conn.on('data',  msg => onData(pid, msg));
-  conn.on('close', ()  => { delete peers[pid]; removeAudio(pid); render(); });
-  conn.on('error', ()  => { delete peers[pid]; removeAudio(pid); render(); });
+  conn.on('data', msg=>onData(pid,msg));
+  conn.on('close',()=>{ delete peers[pid]; removeAudio(pid); render(); });
+  conn.on('error',()=>{ delete peers[pid]; removeAudio(pid); render(); });
 
-  // Media
-  const call = peer.call(pid, micStream);
-  peers[pid].call = call;
-  call.on('stream', s => addAudio(pid, s));
-  call.on('close',  () => removeAudio(pid));
-  call.on('error',  () => removeAudio(pid));
-
+  const call=peer.call(pid,micStream);
+  peers[pid].call=call;
+  call.on('stream',s=>addAudio(pid,s));
+  call.on('close',()=>removeAudio(pid));
+  call.on('error',()=>removeAudio(pid));
   render();
 }
 
-// ── Setup incoming listeners (used by both host & joiner) ─────
-function setupPeerListeners() {
-  // Incoming data connection
-  peer.on('connection', conn => {
-    const pid = conn.peer;
-    if (!peers[pid]) peers[pid] = { conn, call: null, callsign: '???', speaking: false };
-    else peers[pid].conn = conn;
-
-    conn.on('open', () => {
-      conn.send({ type: 'hello', callsign: myCallsign });
-      if (isHost) {
-        // Send existing peers to newcomer
-        const list = Object.entries(peers).filter(([id])=>id!==pid).map(([id,p])=>({id,callsign:p.callsign}));
-        if (list.length) conn.send({ type: 'peers', list });
-        // Tell existing peers about newcomer
-        broadcast({ type: 'peers', list: [{ id: pid, callsign: peers[pid].callsign }] });
+// ── Incoming listeners ────────────────────────────────────────
+function setupIncoming() {
+  peer.on('connection',conn=>{
+    const pid=conn.peer;
+    if(!peers[pid]) peers[pid]={conn,call:null,callsign:'???',speaking:false};
+    else peers[pid].conn=conn;
+    conn.on('open',()=>{
+      conn.send({type:'hello',cs:myCallsign});
+      if(isHost){
+        const list=Object.entries(peers).filter(([id])=>id!==pid).map(([id,p])=>({id,cs:p.callsign}));
+        if(list.length) conn.send({type:'peers',list});
+        broadcast({type:'peers',list:[{id:pid,cs:peers[pid].callsign}]});
       }
     });
-    conn.on('data',  msg => onData(pid, msg));
-    conn.on('close', ()  => { delete peers[pid]; removeAudio(pid); render(); });
-    conn.on('error', ()  => { delete peers[pid]; removeAudio(pid); render(); });
+    conn.on('data', msg=>onData(pid,msg));
+    conn.on('close',()=>{ delete peers[pid]; removeAudio(pid); render(); });
+    conn.on('error',()=>{ delete peers[pid]; removeAudio(pid); render(); });
     render();
   });
 
-  // Incoming media call
-  peer.on('call', call => {
-    const pid = call.peer;
-    if (!peers[pid]) peers[pid] = { conn: null, call, callsign: '???', speaking: false };
-    else peers[pid].call = call;
+  peer.on('call',call=>{
+    const pid=call.peer;
+    if(!peers[pid]) peers[pid]={conn:null,call,callsign:'???',speaking:false};
+    else peers[pid].call=call;
     call.answer(micStream);
-    call.on('stream', s => addAudio(pid, s));
-    call.on('close',  () => removeAudio(pid));
+    call.on('stream',s=>addAudio(pid,s));
+    call.on('close',()=>removeAudio(pid));
     render();
   });
-
-  peer.on('disconnected', () => peer.reconnect());
 }
 
-// ── Go to PTT screen ──────────────────────────────────────────
+// ── Go PTT ───────────────────────────────────────────────────
 function goToPTT() {
-  $('d-canal').textContent = roomId.replace('srtc-','').toUpperCase();
+  $('d-canal').textContent = roomId.replace('rt-','').toUpperCase();
   $('d-cs').textContent    = myCallsign;
-  showPTT();
+  $('d-code').textContent  = roomId.replace('rt-','').toUpperCase();
+  show('ptt');
   render();
 }
 
 // ── CREATE ────────────────────────────────────────────────────
 async function doCreate() {
   const raw = $('in-name').value.trim().replace(/\s+/g,'-') || Math.random().toString(36).substr(2,5).toUpperCase();
-  roomId     = 'srtc-' + raw;
-  myCallsign = 'COMMANDANT';
-  isHost     = true;
+  roomId='rt-'+raw; myCallsign='COMMANDANT'; isHost=true;
 
-  setBtns(true);
-  showMsg('Accès microphone...');
-  try { await getMic(); } catch(e) { showMsg('Micro refusé : '+e.message,'err'); setBtns(false); return; }
+  setBtns(false); setStatus('','');
+  setLoading('Accès microphone...','Veuillez autoriser le microphone');
+  try { await getMic(); } catch(e) { show('setup'); setBtns(true); setStatus('Micro refusé : '+e.message,'err'); return; }
 
-  showLoading('Ouverture du canal...');
+  setLoading('Ouverture du canal...','Connexion au réseau P2P');
 
-  peer = new Peer(roomId, { debug: 0 });
+  peer = new Peer('rt-'+raw, {debug:0});
 
   peer.on('open', id => {
-    myId = id;
-    setupPeerListeners();
+    myId=id;
+    setupIncoming();
     goToPTT();
   });
 
   peer.on('error', e => {
-    showSetup();
-    setBtns(false);
-    if (e.type === 'unavailable-id') showMsg('Ce nom de canal est déjà pris, essayez un autre.','err');
-    else showMsg('Erreur : '+e.type,'err');
+    show('setup'); setBtns(true);
+    if (e.type==='unavailable-id') setStatus('Ce nom est déjà pris, essayez un autre.','err');
+    else setStatus('Erreur réseau — réessayez.','err');
   });
 }
 
 // ── JOIN ──────────────────────────────────────────────────────
 async function doJoin() {
-  const code = $('in-code').value.trim();
-  const cs   = $('in-callsign').value.trim();
-  if (!code) { showMsg('Entrez un code de canal.','err'); return; }
+  const code=$('in-code').value.trim();
+  const cs=$('in-cs').value.trim();
+  if(!code){ setStatus('Entrez un code de canal.','err'); return; }
 
-  roomId     = code.startsWith('srtc-') ? code : 'srtc-'+code;
-  myCallsign = cs || 'AGENT-' + Math.random().toString(36).substr(2,4).toUpperCase();
-  isHost     = false;
+  roomId=code.startsWith('rt-')?code:'rt-'+code.toUpperCase();
+  myCallsign=cs||'AGENT-'+Math.random().toString(36).substr(2,4).toUpperCase();
+  isHost=false;
 
-  setBtns(true);
-  showMsg('Accès microphone...');
-  try { await getMic(); } catch(e) { showMsg('Micro refusé : '+e.message,'err'); setBtns(false); return; }
+  setBtns(false); setStatus('','');
+  setLoading('Accès microphone...','Veuillez autoriser le microphone');
+  try { await getMic(); } catch(e) { show('setup'); setBtns(true); setStatus('Micro refusé : '+e.message,'err'); return; }
 
-  showLoading('Connexion au canal...');
+  setLoading('Connexion au canal...','Recherche du canal');
 
-  peer = new Peer(undefined, { debug: 0 });
+  peer = new Peer(undefined, {debug:0});
 
   peer.on('open', id => {
-    myId = id;
-    setupPeerListeners();
+    myId=id;
+    setupIncoming();
 
-    // Connect to host — data first
-    peers[roomId] = { conn: null, call: null, callsign: 'COMMANDANT', speaking: false };
+    peers[roomId]={conn:null,call:null,callsign:'COMMANDANT',speaking:false};
 
-    const conn = peer.connect(roomId, { reliable: true, serialization: 'json' });
-    peers[roomId].conn = conn;
+    const conn=peer.connect(roomId,{reliable:true,serialization:'json'});
+    peers[roomId].conn=conn;
 
-    let connected = false;
+    let opened=false;
 
-    conn.on('open', () => {
-      connected = true;
-      conn.send({ type: 'hello', callsign: myCallsign });
+    conn.on('open',()=>{
+      opened=true;
+      conn.send({type:'hello',cs:myCallsign});
 
-      // Media to host
-      const call = peer.call(roomId, micStream);
-      peers[roomId].call = call;
-      call.on('stream', s => addAudio(roomId, s));
-      call.on('close',  () => removeAudio(roomId));
-      call.on('error',  () => {});
+      // Media AFTER data connection open
+      const call=peer.call(roomId,micStream);
+      peers[roomId].call=call;
+      call.on('stream',s=>addAudio(roomId,s));
+      call.on('close',()=>removeAudio(roomId));
+      call.on('error',()=>{});
 
       goToPTT();
     });
 
-    conn.on('data',  msg => onData(roomId, msg));
-    conn.on('close', ()  => { if (peers[roomId]) { delete peers[roomId]; removeAudio(roomId); render(); } });
-    conn.on('error', ()  => {
-      if (!connected) {
-        showSetup(); setBtns(false); showMsg('Canal introuvable — vérifiez le code.','err');
-      }
+    conn.on('data', msg=>onData(roomId,msg));
+    conn.on('close',()=>{ delete peers[roomId]; removeAudio(roomId); render(); });
+    conn.on('error',()=>{
+      if(!opened){ show('setup'); setBtns(true); setStatus('Canal introuvable — vérifiez le code.','err'); }
     });
   });
 
   peer.on('error', e => {
-    showSetup();
-    setBtns(false);
-    if (e.type === 'peer-unavailable') showMsg('Canal introuvable — vérifiez le code.','err');
-    else showMsg('Erreur réseau : '+e.type,'err');
+    show('setup'); setBtns(true);
+    if(e.type==='peer-unavailable') setStatus('Canal introuvable — vérifiez le code.','err');
+    else setStatus('Erreur réseau — réessayez.','err');
   });
 }
 
 // ── PTT ───────────────────────────────────────────────────────
 function startTx(e) {
-  if (e) e.preventDefault();
-  if (!micStream) return;
-  micStream.getAudioTracks().forEach(t => t.enabled = true);
+  if(e) e.preventDefault();
+  if(!micStream) return;
+  micStream.getAudioTracks().forEach(t=>t.enabled=true);
   $('ptt-btn').classList.add('tx');
-  $('ptt-lbl').textContent = 'ÉMISSION';
-  $('rxline').className = 'rxline tx';
-  $('rxline').textContent = '● VOUS TRANSMETTEZ';
-  broadcast({ type: 'speaking', val: true });
+  $('ptt-lbl').textContent='ÉMISSION';
+  $('rxbar').className='rx-bar tx';
+  $('rxbar').textContent='● Vous transmettez';
+  broadcast({type:'speaking',val:true});
 }
 
 function stopTx(e) {
-  if (e) e.preventDefault();
-  if (!micStream) return;
-  micStream.getAudioTracks().forEach(t => t.enabled = false);
+  if(e) e.preventDefault();
+  if(!micStream) return;
+  micStream.getAudioTracks().forEach(t=>t.enabled=false);
   $('ptt-btn').classList.remove('tx');
-  $('ptt-lbl').textContent = 'PARLER';
-  broadcast({ type: 'speaking', val: false });
+  $('ptt-lbl').textContent='PARLER';
+  broadcast({type:'speaking',val:false});
   updateRx();
 }
 
-document.addEventListener('keydown', e => {
-  if (e.code==='Space' && $('ptt').style.display!=='none') { e.preventDefault(); if(!e.repeat) startTx(); }
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&$('screen-ptt').style.display!=='none'){e.preventDefault();if(!e.repeat)startTx();}
 });
-document.addEventListener('keyup', e => {
-  if (e.code==='Space' && $('ptt').style.display!=='none') stopTx();
+document.addEventListener('keyup',e=>{
+  if(e.code==='Space'&&$('screen-ptt').style.display!=='none')stopTx();
 });
 </script>
 </body>
